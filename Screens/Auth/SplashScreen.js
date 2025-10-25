@@ -27,7 +27,7 @@ const SplashScreen = props => {
           />
           <AuthButton
             onPress={() => {
-              props.navigation.navigate('LoginScreen');
+              props.navigation.replace('LoginScreen');
             }}
             style={styles.button}
             text="Continue"

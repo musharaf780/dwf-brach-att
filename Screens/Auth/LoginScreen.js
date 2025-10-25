@@ -20,7 +20,7 @@ import IoIcon from 'react-native-vector-icons/Ionicons';
 import AuthButton from '../../Components/AuthButton';
 import { ThemeColors } from '../../Constants/Color';
 
-const LoginScreen = () => {
+const LoginScreen = props => {
   const [secure, setSecure] = useState(false);
 
   return (
@@ -96,7 +96,13 @@ const LoginScreen = () => {
               </View>
             </View>
 
-            <AuthButton style={styles.button} text="Log In" />
+            <AuthButton
+              onPress={() => {
+                props.navigation.replace('DashboardScreen');
+              }}
+              style={styles.button}
+              text="Log In"
+            />
           </View>
         </View>
       </ScrollView>
