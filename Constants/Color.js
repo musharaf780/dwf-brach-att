@@ -5,7 +5,7 @@ export const ThemeColors = {
   danger: '#dc3545',
   warning: '#ffc107',
   info: '#17a2b8',
-  light: '#f8f9fa',
+  light: '#d0d2d3ff',
   dark: '#343a40',
   white: '#ffffff',
   black: '#000000',
