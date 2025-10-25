@@ -10,6 +10,7 @@ import Paragraph from './Paragraph';
 const AuthButton = props => {
   return (
     <TouchableOpacity
+      onPress={props.onPress}
       style={{
         height: hp('5%'),
         width: wp('90%'),

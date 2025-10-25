@@ -3,13 +3,14 @@ import { createStackNavigator } from '@react-navigation/stack';
 import HomeScreen from '../Screens/HomeScreen';
 import SplashScreen from '../Screens/Auth/SplashScreen';
 import { ThemeColors } from '../Constants/Color';
+import LoginScreen from '../Screens/Auth/LoginScreen';
 
 const Stack = createStackNavigator();
 const MyTheme = {
   ...DefaultTheme,
   colors: {
     ...DefaultTheme.colors,
-    background: ThemeColors.primary, 
+    background: ThemeColors.primary,
   },
 };
 
@@ -22,7 +23,7 @@ const MainNavigator = () => {
         }}
       >
         <Stack.Screen name="SplashScreen" component={SplashScreen} />
-        <Stack.Screen name="HomeScreen" component={HomeScreen} />
+        <Stack.Screen name="LoginScreen" component={LoginScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

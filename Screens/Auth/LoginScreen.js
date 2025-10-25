@@ -8,30 +8,34 @@ import Heading from '../../Components/Heading';
 import Paragraph from '../../Components/Paragraph';
 import AuthButton from '../../Components/AuthButton';
 
-const SplashScreen = props => {
+const LoginScreen = () => {
   return (
     <View style={styles.container}>
       <View style={styles.imageContainer}>
         <Image
           style={styles.image}
-          source={require('../../Assets/Images/splash.png')}
+          source={require('../../Assets/Images/loginvector.png')}
         />
       </View>
 
       <View style={styles.contentContainer}>
         <View style={styles.textWrapper}>
-          <Heading title="Welcome to The HR Application" />
-          <Paragraph
-            style={styles.paragraph}
-            text="Connect securely with potential candidates and employers through our HR application."
-          />
-          <AuthButton
-            onPress={() => {
-              props.navigation.navigate('LoginScreen');
+          <Heading title={`Sign in to your ${'\n'} Account`} />
+
+          <View
+            style={{
+              height: hp('10%'),
+              width: wp('90%'),
+              backgroundColor: 'white',
+              marginBottom: hp('1%'),
+              marginTop: hp('2%'),
+              borderRadius: hp('1%'),
             }}
-            style={styles.button}
-            text="Continue"
-          />
+          >
+            
+
+          </View>
+          <AuthButton style={styles.button} text="Log In" />
         </View>
       </View>
     </View>
@@ -71,4 +75,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SplashScreen;
+export default LoginScreen;
