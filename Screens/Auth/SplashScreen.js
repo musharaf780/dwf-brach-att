@@ -65,6 +65,7 @@ const styles = StyleSheet.create({
   paragraph: {
     marginVertical: hp('1%'),
     textAlign: 'center',
+    paddingHorizontal: hp('2%'),
   },
   button: {
     marginTop: hp('2%'),

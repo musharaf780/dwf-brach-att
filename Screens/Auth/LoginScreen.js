@@ -66,7 +66,6 @@ const LoginScreen = props => {
                 </View>
               </View>
 
-              {/* Password Field */}
               <View style={styles.inputRow}>
                 <View style={styles.iconWrapper}>
                   <AIcon
