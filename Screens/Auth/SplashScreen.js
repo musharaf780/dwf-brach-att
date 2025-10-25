@@ -6,12 +6,13 @@ import {
 } from 'react-native-responsive-screen';
 import Heading from '../../Components/Heading';
 import Paragraph from '../../Components/Paragraph';
+import AuthButton from '../../Components/AuthButton';
 const SplashScreen = () => {
   return (
     <View style={styles.container}>
       <View
         style={{
-          height: hp('60%'),
+          height: hp('65%'),
           width: wp('100%'),
 
           justifyContent: 'center',
@@ -20,7 +21,7 @@ const SplashScreen = () => {
       >
         <Image
           style={{
-            height: hp('40%'),
+            height: hp('35%'),
             width: wp('100%'),
             resizeMode: 'contain',
           }}
@@ -42,9 +43,11 @@ const SplashScreen = () => {
         >
           <Heading title="Welcome to The HR Application" />
           <Paragraph
-            style={{ margin: hp('2%'), textAlign: 'center' }}
+            style={{ margin: hp('1%'), textAlign: 'center' }}
             text="Connect securely with potential candidates and employers through our HR application."
           />
+
+          <AuthButton style={{ marginTop: hp('2%') }} text="Continue" />
         </View>
       </View>
     </View>
