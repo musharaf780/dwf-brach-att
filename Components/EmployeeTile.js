@@ -12,7 +12,6 @@ import Paragraph from './Paragraph';
 const EmployeeTile = ({ items }) => {
   return (
     <View style={styles.container}>
-      {/* Left Icon */}
       <View style={styles.iconContainer}>
         <IoIcon
           size={hp('5%')}
@@ -21,7 +20,6 @@ const EmployeeTile = ({ items }) => {
         />
       </View>
 
-      {/* Details Section */}
       <View style={styles.detailsContainer}>
         <Heading style={styles.name} title={items.Name} />
         <Paragraph
@@ -29,7 +27,6 @@ const EmployeeTile = ({ items }) => {
           text={new Date(items?.dateandtime).toLocaleString()}
         />
 
-        {/* Check Button */}
         <TouchableOpacity
           activeOpacity={0.8}
           style={[
@@ -101,10 +98,10 @@ const styles = StyleSheet.create({
     height: hp('5%'),
     width: wp('32%'),
     borderRadius: hp('1%'),
-    marginTop: hp('0.7%'),
+    marginTop: hp('0.5%'),
     flexDirection: 'row',
     alignItems: 'center',
-    overflow: 'hidden',
+    justifyContent: 'center',
   },
   buttonIcon: {
     width: '25%',

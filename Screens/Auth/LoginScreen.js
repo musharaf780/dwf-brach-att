@@ -44,9 +44,7 @@ const LoginScreen = props => {
           <View style={styles.textWrapper}>
             <Heading title={`Sign in to your ${'\n'} Account`} />
 
-            {/* Input Box */}
             <View style={styles.inputBox}>
-              {/* Email Field */}
               <View style={styles.inputRow}>
                 <View style={styles.iconWrapper}>
                   <Icon
@@ -155,7 +153,7 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
   },
   iconWrapper: {
-    width: '15%',
+    width: '10%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
@@ -177,7 +175,7 @@ const styles = StyleSheet.create({
     color: ThemeColors.black,
   },
   eyeIconWrapper: {
-    width: '10%',
+    width: '20%',
     height: '100%',
     justifyContent: 'center',
     alignItems: 'center',
