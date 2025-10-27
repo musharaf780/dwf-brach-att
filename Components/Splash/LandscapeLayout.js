@@ -34,7 +34,10 @@ const LandscapeLayout = props => {
         }}
       >
         <View style={{ width: '90%' }}>
-          <Heading title="Welcome to The HR Application" />
+          <Heading
+            style={{ fontSize: hp('5%') }}
+            title="Welcome to The HR Application"
+          />
           <Paragraph
             style={styles.paragraph}
             text="Connect securely with potential candidates and employers through our HR application."
@@ -61,7 +64,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   image: {
-    height: hp('35%'),
+    height: hp('45%'),
     width: wp('100%'),
     resizeMode: 'contain',
   },
@@ -78,6 +81,7 @@ const styles = StyleSheet.create({
     marginVertical: hp('1%'),
     textAlign: 'center',
     paddingHorizontal: hp('2%'),
+    fontSize: hp('2%'),
   },
   button: {
     marginTop: hp('2%'),
