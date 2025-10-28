@@ -35,7 +35,7 @@ const LandscapeLayout = props => {
       >
         <View style={{ width: '90%' }}>
           <Heading
-            style={{ fontSize: hp('5%') }}
+            style={{ fontSize: hp('6%') }}
             title="Welcome to The HR Application"
           />
           <Paragraph
@@ -43,6 +43,7 @@ const LandscapeLayout = props => {
             text="Connect securely with potential candidates and employers through our HR application."
           />
           <AuthButton
+            testStyle={{ fontSize: hp('2%') }}
             onPress={props.onNavigate}
             style={styles.button}
             text="Continue"
@@ -84,6 +85,7 @@ const styles = StyleSheet.create({
     fontSize: hp('2%'),
   },
   button: {
+    height: hp('7%'),
     marginTop: hp('2%'),
     width: '100%',
   },

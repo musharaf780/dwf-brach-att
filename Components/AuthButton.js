@@ -23,7 +23,7 @@ const AuthButton = props => {
     >
       <Paragraph
         text={props.text}
-        style={{ color: ThemeColors.primary, fontWeight: '600' }}
+        style={{ color: ThemeColors.primary, fontWeight: '600',...props.testStyle }}
       />
     </TouchableOpacity>
   );

@@ -14,7 +14,6 @@ const styles = StyleSheet.create({
   paragraph: {
     fontSize: hp('1.48%'), // equivalent to ~12px
     color: ThemeColors.white,
-    lineHeight: hp('2%'), // added for better readability
   },
 });
 
