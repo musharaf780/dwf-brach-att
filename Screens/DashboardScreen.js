@@ -49,7 +49,6 @@ const DashboardScreen = props => {
       />
 
       <View style={styles.container}>
-        {/* Header Section */}
         <View style={styles.headerContainer}>
           <View style={styles.topRow}>
             <View style={styles.logoContainer}>
@@ -152,7 +151,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   headerContainer: {
-    height: hp('25%'),
+    height: hp('20%'),
     width: wp('100%'),
   },
   topRow: {
@@ -238,6 +237,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     paddingTop: hp('2%'),
+    paddingBottom: Platform.OS === 'android' ? hp('4.5%') : hp('1%'),
   },
   innerContainer: {
     height: '85%',
