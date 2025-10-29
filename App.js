@@ -1,3 +1,4 @@
+// App.js
 import React, { useEffect } from 'react';
 import MainNavigator from './Nvigation/MianNavigator';
 import { initDB } from './DB/Database';
@@ -7,15 +8,16 @@ import Orientation from 'react-native-orientation-locker';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk';
-import AuthReducer from './Store/Reducers/AuthReducer';
+import AuthReducer from './Store /Reducers/AuthReducer';
 import DeviceInfo from 'react-native-device-info';
-import { SetIsTabletLanscape } from './Store/Actions/AuthReducer';
+import { SetIsTabletLanscape } from './Store /Actions/AuthReducer';
+
 const App = () => {
   const rootReducer = combineReducers({
     auth: AuthReducer,
   });
 
-  const Store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+  const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
   useEffect(() => {
     const { width, height } = Dimensions.get('window');
@@ -36,19 +38,21 @@ const App = () => {
       }
     });
 
-    return () => {
-      subscription?.remove();
-    };
+    return () => subscription?.remove();
   }, []);
 
   useEffect(() => {
-    Store.dispatch(SetIsTabletLanscape(DeviceInfo.isTablet()));
-    SystemNavigationBar.navigationHide();
-    initDB();
+    const init = async () => {
+      const isTablet = await DeviceInfo.isTablet();
+      store.dispatch(SetIsTabletLanscape(isTablet));
+      SystemNavigationBar.navigationHide();
+      initDB();
+    };
+    init();
   }, []);
 
   return (
-    <Provider store={Store}>
+    <Provider store={store}>
       <MainNavigator />
     </Provider>
   );

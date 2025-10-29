@@ -7,6 +7,7 @@ import {
 import Heading from '../Heading';
 import Paragraph from '../Paragraph';
 import AuthButton from '../AuthButton';
+import { ThemeColors } from '../../Constants/Color';
 
 const LandscapeLayout = props => {
   return (
@@ -17,6 +18,7 @@ const LandscapeLayout = props => {
           width: '50%',
           justifyContent: 'center',
           alignItems: 'center',
+          backgroundColor: ThemeColors.secondary,
         }}
       >
         <Image
