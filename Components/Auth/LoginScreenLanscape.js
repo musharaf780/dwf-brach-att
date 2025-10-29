@@ -18,9 +18,16 @@ import AIcon from 'react-native-vector-icons/EvilIcons';
 import IoIcon from 'react-native-vector-icons/Ionicons';
 import AuthButton from '../AuthButton';
 import { ThemeColors } from '../../Constants/Color';
+import * as AuthAction from '../../Store /Actions/AuthAction';
+import { useDispatch } from 'react-redux';
 
 const LoginScreenLandscape = props => {
   const [secure, setSecure] = useState(false);
+  const dispatch = useDispatch();
+
+  const LoginHandler = () => {
+    dispatch(AuthAction.UserLoginAction());
+  };
 
   return (
     <KeyboardAvoidingView
@@ -91,7 +98,7 @@ const LoginScreenLandscape = props => {
             </View>
 
             <AuthButton
-              onPress={props.navigate}
+              onPress={LoginHandler}
               style={styles.button}
               text="Log In"
             />

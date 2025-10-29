@@ -10,7 +10,7 @@ import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import AuthReducer from './Store /Reducers/AuthReducer';
 import DeviceInfo from 'react-native-device-info';
-import { SetIsTabletLanscape } from './Store /Actions/AuthReducer';
+import { SetIsTabletLanscape } from './Store /Actions/AuthAction';
 
 const App = () => {
   const rootReducer = combineReducers({
