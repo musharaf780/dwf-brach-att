@@ -4,7 +4,6 @@ import {
   StyleSheet,
   TextInput,
   ScrollView,
-  SafeAreaView,
   TouchableOpacity,
   Image,
   Platform,
@@ -18,12 +17,12 @@ import { ThemeColors } from '../../Constants/Color';
 import IoIcon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Data } from '../../Constants/Data';
-import EmployeeTile from '../EmployeeTile';
 import Paragraph from '../Paragraph';
+import EmployyeTileLandscape from '../EmployyeTileLandscape';
 
 const DashboardLandcape = props => {
   const SearchTile = () => (
-    <View style={styles.searchContainer}>
+    <View style={styles.searchTileContainer}>
       <TextInput
         placeholder="Search"
         placeholderTextColor={ThemeColors.light}
@@ -40,94 +39,82 @@ const DashboardLandcape = props => {
   );
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle={Platform.OS === 'ios' ? 'light-content' : 'light-content'}
-      />
+    <View style={styles.mainContainer}>
+      {/* Left Sidebar */}
+      <View style={styles.sidebarContainer}>
+        <View style={styles.logoWrapper}>
+          <Image source={require('../../Assets/Images/dwflogo.jpg')} />
+        </View>
 
-      <View style={styles.container}>
-        <View style={styles.headerContainer}>
-          <View style={styles.topRow}>
-            <View style={styles.logoContainer}>
-              <Image
-                style={styles.logoImage}
-                source={require('../../Assets/Images/dwflogo.jpg')}
-              />
-            </View>
+        <View style={styles.welcomeWrapper}>
+          <Paragraph style={styles.welcomeText} text="Welcome," />
+          <Paragraph style={styles.branchText} text="Dammam Road Branch" />
+        </View>
 
-            <View style={styles.welcomeContainer}>
-              <View style={styles.welcomeInner}>
-                <Paragraph style={styles.welcomeText} text="Welcome," />
-                <Paragraph
-                  style={styles.branchText}
-                  text="Dammam Road Branch"
-                />
-              </View>
-            </View>
-
-            {/* Action Icons */}
-            <View style={styles.iconContainer}>
-              <TouchableOpacity style={styles.iconButton}>
-                <MaterialIcons
-                  name="sync"
-                  size={hp('2.3%')}
-                  color={ThemeColors.white}
-                />
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton}>
-                <MaterialIcons
-                  name="logout"
-                  size={hp('2.3%')}
-                  color={ThemeColors.white}
-                />
-              </TouchableOpacity>
-            </View>
+        <View style={styles.statsContainer}>
+          {/* Pending Shift */}
+          <View style={styles.statBox}>
+            <Paragraph style={styles.statPendingTitle} text="Pending Shift" />
+            <Paragraph style={styles.statPendingValue} text="10" />
           </View>
 
-          <View style={styles.statsRow}>
-            <View style={styles.statCard}>
-              <View style={styles.statLeft}>
-                <Paragraph style={styles.statTitle} text={`Pending\nShift`} />
-              </View>
-              <View style={styles.statRight}>
-                <Paragraph style={styles.statValue} text={`30`} />
-              </View>
-            </View>
-
-            <View style={styles.statCard}>
-              <View style={styles.statLeft}>
-                <Paragraph style={styles.statTitle} text={`Pushed\nShift`} />
-              </View>
-              <View style={styles.statRight}>
-                <Paragraph style={styles.statValue} text={`100`} />
-              </View>
-            </View>
+          {/* Pushed Shift */}
+          <View style={styles.statBoxAlt}>
+            <Paragraph style={styles.statPushedTitle} text="Pushed Shift" />
+            <Paragraph style={styles.statPushedValue} text="200" />
           </View>
         </View>
 
-        {/* Content Section */}
-        <View style={styles.contentSection}>
-          <View style={styles.innerContainer}>
-            <SearchTile />
+        {/* Sync + Logout */}
+        <View style={styles.footerButtonsContainer}>
+          <TouchableOpacity style={styles.footerButton}>
+            <MaterialIcons
+              name="sync"
+              size={hp('3%')}
+              color={ThemeColors.white}
+            />
+            <Paragraph
+              style={styles.footerButtonText}
+              text="Sync Employee List"
+            />
+          </TouchableOpacity>
 
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
-              {Data.map((item, index) => (
-                <EmployeeTile key={index.toString()} items={item} />
-              ))}
-            </ScrollView>
-          </View>
+          <TouchableOpacity style={styles.footerButton}>
+            <MaterialIcons
+              name="logout"
+              size={hp('3%')}
+              color={ThemeColors.white}
+            />
+            <Paragraph style={styles.footerButtonText} text="Logout" />
+          </TouchableOpacity>
+        </View>
+      </View>
 
-          {/* Bottom Bar */}
+      {/* Right Content */}
+      <View style={styles.rightContainer}>
+        <View style={styles.searchContainer}>
+          <SearchTile />
+        </View>
+
+        <View style={styles.employeeContainer}>
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.employeeScroll}
+          >
+            {Data.map((item, index) => (
+              <View key={index.toString()} style={styles.employeeTile}>
+                <EmployyeTileLandscape items={item} />
+              </View>
+            ))}
+          </ScrollView>
+        </View>
+
+        <View style={styles.bottomContainer}>
           <TouchableOpacity style={styles.bottomBar}>
             <MaterialIcons
               name="fact-check"
               color={ThemeColors.secondary}
-              size={hp('3%')}
+              size={hp('5%')}
             />
             <Paragraph
               style={styles.bottomBarText}
@@ -136,122 +123,131 @@ const DashboardLandcape = props => {
           </TouchableOpacity>
         </View>
       </View>
-    </SafeAreaView>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: ThemeColors.primary,
-    paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-  },
-  container: {
-    flex: 1,
-  },
-  headerContainer: {
-    height: hp('20%'),
-    width: wp('100%'),
-  },
-  topRow: {
-    height: '50%',
+  mainContainer: {
+    height: '100%',
     width: '100%',
     flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  logoContainer: {
-    width: '20%',
-    justifyContent: 'center',
-    alignItems: 'center',
+  sidebarContainer: {
+    height: '100%',
+    width: '25%',
+    backgroundColor: ThemeColors.primary,
   },
-  logoImage: {
-    height: hp('15%'),
-    width: wp('15%'),
-    resizeMode: 'center',
-  },
-  welcomeContainer: {
-    width: '60%',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  welcomeInner: {
+  logoWrapper: {
+    height: '15%',
+    width: '100%',
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: hp('2%'),
   },
+  welcomeWrapper: {
+    paddingHorizontal: '2%',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
   welcomeText: {
-    fontSize: hp('1.7%'),
+    fontSize: hp('2%'),
+    color: ThemeColors.secondary,
   },
   branchText: {
-    fontSize: hp('2%'),
+    fontSize: hp('2.5%'),
     fontWeight: 'bold',
+    color: ThemeColors.secondary,
   },
-  iconContainer: {
-    width: '20%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-  },
-  iconButton: {
-    padding: hp('0.5%'),
-  },
-  statsRow: {
+  statsContainer: {
     height: '50%',
     width: '100%',
-    flexDirection: 'row',
-    paddingHorizontal: wp('5%'),
-    justifyContent: 'space-between',
-  },
-  statCard: {
-    height: hp('8%'),
-    width: wp('42%'),
-    borderRadius: hp('1%'),
-    borderWidth: 1,
-    borderColor: ThemeColors.secondary,
-    padding: hp('1%'),
-    justifyContent: 'space-between',
-  },
-  statLeft: {
-    alignSelf: 'flex-start',
-  },
-  statRight: {
-    alignSelf: 'flex-end',
-  },
-  statTitle: {
-    fontWeight: 'bold',
-    color: ThemeColors.secondary,
-    fontSize: hp('2%'),
-  },
-  statValue: {
-    color: ThemeColors.secondary,
-    fontWeight: 'bold',
-    fontSize: hp('2%'),
-  },
-  contentSection: {
-    flex: 1,
-    backgroundColor: ThemeColors.secondary,
-    borderTopRightRadius: hp('4%'),
-    borderTopLeftRadius: hp('4%'),
-    justifyContent: 'center',
     alignItems: 'center',
-    paddingTop: hp('2%'),
-    paddingBottom: Platform.OS === 'android' ? hp('4.5%') : hp('1%'),
+    marginTop: hp('1%'),
   },
-  innerContainer: {
-    height: '85%',
+  statBox: {
+    height: hp('8%'),
     width: '90%',
+    backgroundColor: ThemeColors.secondary,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: hp('2%'),
+    borderRadius: hp('1%'),
+  },
+  statPendingTitle: {
+    color: ThemeColors.primary,
+    fontWeight: 'bold',
+    fontSize: hp('2.2%'),
+  },
+  statPendingValue: {
+    color: ThemeColors.primary,
+    fontSize: hp('3%'),
+    fontWeight: 'bold',
+  },
+  statBoxAlt: {
+    height: hp('8%'),
+    width: '90%',
+    backgroundColor: ThemeColors.secondary,
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexDirection: 'row',
+    paddingHorizontal: hp('2%'),
+    borderRadius: hp('1%'),
+    marginTop: hp('1.5%'),
+  },
+  statPushedTitle: {
+    color: ThemeColors.primary,
+    fontWeight: 'bold',
+    fontSize: hp('2.2%'),
+  },
+  statPushedValue: {
+    color: ThemeColors.primary,
+    fontSize: hp('3%'),
+    fontWeight: 'bold',
+  },
+  footerButtonsContainer: {
+    height: '20%',
+    width: '100%',
+    paddingHorizontal: hp('2%'),
+    justifyContent: 'center',
+  },
+  footerButton: {
+    height: hp('6%'),
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    borderRadius: hp('1%'),
+    marginBottom: hp('1.5%'),
+    paddingHorizontal: hp('1.5%'),
+  },
+  footerButtonText: {
+    marginLeft: hp('1%'),
+    color: ThemeColors.secondary,
+    fontWeight: 'bold',
+    fontSize: hp('1.9%'),
+  },
+  rightContainer: {
+    height: '100%',
+    width: '75%',
+    backgroundColor: ThemeColors.secondary,
+    borderTopLeftRadius: '2%',
+    borderBottomLeftRadius: '2%',
   },
   searchContainer: {
-    height: hp('5%'),
+    height: '15%',
     width: '100%',
-    backgroundColor: 'white',
-    borderRadius: hp('1%'),
-    borderColor: ThemeColors.light,
-    borderWidth: hp('0.08%'),
-    flexDirection: 'row',
+    justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: hp('1.5%'),
+  },
+  searchTileContainer: {
+    flexDirection: 'row',
+    width: '90%',
+    backgroundColor: ThemeColors.white,
+    height: '40%',
+    paddingHorizontal: hp('2%'),
+    borderRadius: '2%',
   },
   searchInput: {
     flex: 1,
@@ -263,12 +259,30 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingLeft: hp('0.5%'),
   },
-  scrollContent: {
-    paddingVertical: hp('1%'),
+  employeeContainer: {
+    height: '70%',
+    width: '100%',
+    paddingHorizontal: '5%',
+  },
+  employeeScroll: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: 10,
+  },
+  employeeTile: {
+    width: '48%',
+    marginBottom: 10,
+  },
+  bottomContainer: {
+    height: '10%',
+    width: '100%',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   bottomBar: {
-    height: hp('5%'),
-    width: '90%',
+    height: '80%',
+    width: '80%',
     backgroundColor: ThemeColors.primary,
     borderRadius: hp('1%'),
     marginTop: hp('2%'),
@@ -280,7 +294,7 @@ const styles = StyleSheet.create({
     marginLeft: hp('1%'),
     fontWeight: '600',
     color: ThemeColors.white,
-    fontSize: hp('1.7%'),
+    fontSize: hp('2.5%'),
   },
 });
 
