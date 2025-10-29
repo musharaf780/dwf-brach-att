@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Button,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -20,13 +21,13 @@ import AuthButton from '../AuthButton';
 import { ThemeColors } from '../../Constants/Color';
 import * as AuthAction from '../../Store /Actions/AuthAction';
 import { useDispatch } from 'react-redux';
-
+import { getAuthData } from '../../DB/AuthDatabse';
 const LoginScreenLandscape = props => {
   const [secure, setSecure] = useState(false);
   const dispatch = useDispatch();
 
   const LoginHandler = () => {
-    dispatch(AuthAction.UserLoginAction());
+    dispatch(AuthAction.UserLoginAction('ammamroad@juicetime.com.sa', '1'));
   };
 
   return (
@@ -97,6 +98,17 @@ const LoginScreenLandscape = props => {
               </View>
             </View>
 
+            <Button
+              onPress={async () => {
+                try {
+                  const data = await getAuthData();
+                  console.log('Auth Data:', JSON.stringify(data));
+                } catch (error) {
+                  console.log('Error fetching auth data:', error.message);
+                }
+              }}
+              title="CLICK"
+            />
             <AuthButton
               onPress={LoginHandler}
               style={styles.button}

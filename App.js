@@ -2,6 +2,7 @@
 import React, { useEffect } from 'react';
 import MainNavigator from './Nvigation/MianNavigator';
 import { initDB } from './DB/Database';
+import { initAuthDB } from './DB/AuthDatabse';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import { Dimensions } from 'react-native';
 import Orientation from 'react-native-orientation-locker';
@@ -47,6 +48,7 @@ const App = () => {
       store.dispatch(SetIsTabletLanscape(isTablet));
       SystemNavigationBar.navigationHide();
       initDB();
+      initAuthDB();
     };
     init();
   }, []);
