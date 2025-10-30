@@ -19,8 +19,10 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Data } from '../../Constants/Data';
 import Paragraph from '../Paragraph';
 import EmployyeTileLandscape from '../EmployyeTileLandscape';
-
+import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
+import { useDispatch, useSelector } from 'react-redux';
 const DashboardLandcape = props => {
+  const { isTablet, loginSuccess } = useSelector(state => state.auth);
   const SearchTile = () => (
     <View style={styles.searchTileContainer}>
       <TextInput
@@ -37,6 +39,11 @@ const DashboardLandcape = props => {
       </TouchableOpacity>
     </View>
   );
+  const dispatch = useDispatch();
+
+  const SyncEmployeeList = () => {
+    dispatch(EmployeeDataAction.UserListDataAction(loginSuccess.access_token));
+  };
 
   return (
     <View style={styles.mainContainer}>
@@ -112,7 +119,7 @@ const DashboardLandcape = props => {
         </View>
 
         <View style={styles.bottomContainer}>
-          <TouchableOpacity style={styles.bottomBar}>
+          <TouchableOpacity onPress={SyncEmployeeList} style={styles.bottomBar}>
             <MaterialIcons
               name="fact-check"
               color={ThemeColors.secondary}
