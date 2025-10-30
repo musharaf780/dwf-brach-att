@@ -98,7 +98,7 @@ const DashboardPortrait = props => {
 
             <View style={styles.statCard}>
               <View style={styles.statLeft}>
-                <Paragraph style={styles.statTitle} text={`Today’s\nShift`} />
+                <Paragraph style={styles.statTitle} text={`Today’s`} />
               </View>
               <View style={styles.statRight}>
                 <Paragraph style={styles.statValue} text={`100`} />

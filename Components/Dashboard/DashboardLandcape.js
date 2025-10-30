@@ -59,7 +59,7 @@ const DashboardLandcape = props => {
 
           {/* Pushed Shift */}
           <View style={styles.statBoxAlt}>
-            <Paragraph style={styles.statPushedTitle} text="Today’s Shift" />
+            <Paragraph style={styles.statPushedTitle} text="Today’s" />
             <Paragraph style={styles.statPushedValue} text="200" />
           </View>
         </View>
