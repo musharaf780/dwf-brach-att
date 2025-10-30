@@ -1,11 +1,9 @@
 import ApiConstants from '../../Constants/ApiConstants';
-
+import { insertEmployeeList } from '../../DB/EmployeeList';
 
 export const UserListDataAction = token => {
   return async dispatch => {
     try {
-      console.log('User token:', token);
-
       const myHeaders = new Headers();
       myHeaders.append('Authorization', `Bearer ${token}`);
 
@@ -21,10 +19,19 @@ export const UserListDataAction = token => {
       );
 
       const result = await response.json();
-      console.log('EMPLOYEE LIST:', JSON.stringify(result));
 
-      // You can dispatch the data to Redux if needed
-      // dispatch({ type: 'FETCH_USER_LIST_SUCCESS', payload: result });
+      if (result.status === 200) {
+        const data = Array.isArray(result?.sub_employees)
+          ? result.sub_employees.map(emp => ({
+              ...emp,
+              checkIn: !!emp.is_geosess_active,
+            }))
+          : [];
+
+        insertEmployeeList(data);
+      } else {
+        console.log('Unable to save user list data:', result);
+      }
     } catch (error) {
       console.log('Error fetching user list:', error);
       // dispatch({ type: 'FETCH_USER_LIST_FAIL', payload: error });
