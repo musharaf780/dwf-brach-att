@@ -20,7 +20,10 @@ import { Data } from '../../Constants/Data';
 import Paragraph from '../Paragraph';
 import EmployyeTileLandscape from '../EmployyeTileLandscape';
 
+
 const DashboardLandcape = props => {
+
+
   const SearchTile = () => (
     <View style={styles.searchTileContainer}>
       <TextInput
@@ -79,7 +82,10 @@ const DashboardLandcape = props => {
             />
           </TouchableOpacity>
 
-          <TouchableOpacity style={styles.footerButton}>
+          <TouchableOpacity
+            onPress={props.logoutPress}
+            style={styles.footerButton}
+          >
             <MaterialIcons
               name="logout"
               size={hp('3%')}

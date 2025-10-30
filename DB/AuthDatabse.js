@@ -93,12 +93,20 @@ export const getAuthData = () => {
 };
 
 export const clearAuthData = () => {
-  db.transaction(tx => {
-    tx.executeSql(
-      'DELETE FROM auth WHERE id = 1',
-      [],
-      () => console.log('Auth data cleared'),
-      (_, error) => console.log('Error clearing auth data:', error.message),
-    );
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'DELETE FROM auth WHERE id = 1',
+        [],
+        () => {
+          console.log('Auth data cleared');
+          resolve();
+        },
+        (_, error) => {
+          console.log('Error clearing auth data:', error.message);
+          reject(error);
+        },
+      );
+    });
   });
 };

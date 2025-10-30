@@ -1,6 +1,7 @@
 import {
   IsTabletActionConst,
   UserLoginActionConst,
+  UserAuthDataToReduxActionConst,
 } from '../Constants/AuthConstant';
 
 const initialState = {
@@ -29,7 +30,7 @@ export default (state = initialState, action) => {
     case UserLoginActionConst.USER_LOGIN_SUCC:
       state = {
         ...state,
-        loader: true,
+        loader: false,
         loginSuccess: action.data,
         loginFail: null,
       };
@@ -38,9 +39,24 @@ export default (state = initialState, action) => {
     case UserLoginActionConst.USER_LOGIN_FAIL:
       state = {
         ...state,
-        loader: true,
+        loader: false,
         loginSuccess: null,
         loginFail: action.data,
+      };
+      break;
+
+    case UserAuthDataToReduxActionConst.SAVE_USERDATA_TO_REDUX:
+      state = {
+        ...state,
+
+        loginSuccess: action.data,
+      };
+      break;
+
+    case UserLoginActionConst.USER_LOGOUT:
+      state = {
+        ...state,
+        loginSuccess: null,
       };
       break;
   }

@@ -1,9 +1,10 @@
 import {
   IsTabletActionConst,
   UserLoginActionConst,
+  UserAuthDataToReduxActionConst,
 } from '../Constants/AuthConstant';
 import ApiConstants from '../../Constants/ApiConstants';
-import { saveAuthData } from '../../DB/AuthDatabse';
+import { saveAuthData, clearAuthData } from '../../DB/AuthDatabse';
 
 export const SetIsTabletLanscape = bool => {
   return async dispatch => {
@@ -11,6 +12,27 @@ export const SetIsTabletLanscape = bool => {
       type: IsTabletActionConst.IS_TABLET_HAVE,
       data: bool,
     });
+  };
+};
+
+export const UserAuthDataToReduxAction = data => {
+  return async dispatch => {
+    dispatch({
+      type: UserAuthDataToReduxActionConst.SAVE_USERDATA_TO_REDUX,
+      data: data,
+    });
+  };
+};
+
+export const UserLogoutAction = () => {
+  return async dispatch => {
+    try {
+      dispatch({ type: UserLoginActionConst.USER_LOGOUT });
+      await clearAuthData();
+      console.log('User logged out successfully');
+    } catch (error) {
+      console.log('Logout error:', error.message);
+    }
   };
 };
 

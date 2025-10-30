@@ -6,4 +6,9 @@ export const UserLoginActionConst = {
   USER_LOGIN_REQ: 'USER_LOGIN_REQ',
   USER_LOGIN_SUCC: 'USER_LOGIN_SUCC',
   USER_LOGIN_FAIL: 'USER_LOGIN_FAIL',
+  USER_LOGOUT: 'USER_LOGOUT',
+};
+
+export const UserAuthDataToReduxActionConst = {
+  SAVE_USERDATA_TO_REDUX: 'SAVE_USERDATA_TO_REDUX',
 };
