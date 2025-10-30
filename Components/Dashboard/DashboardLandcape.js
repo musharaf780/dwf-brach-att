@@ -20,10 +20,7 @@ import { Data } from '../../Constants/Data';
 import Paragraph from '../Paragraph';
 import EmployyeTileLandscape from '../EmployyeTileLandscape';
 
-
 const DashboardLandcape = props => {
-
-
   const SearchTile = () => (
     <View style={styles.searchTileContainer}>
       <TextInput
@@ -55,7 +52,6 @@ const DashboardLandcape = props => {
         </View>
 
         <View style={styles.statsContainer}>
-          {/* Pending Shift */}
           <View style={styles.statBox}>
             <Paragraph style={styles.statPendingTitle} text="Pending Shift" />
             <Paragraph style={styles.statPendingValue} text="10" />

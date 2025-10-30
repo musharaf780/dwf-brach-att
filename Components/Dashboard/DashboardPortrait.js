@@ -76,10 +76,7 @@ const DashboardPortrait = props => {
                   color={ThemeColors.white}
                 />
               </TouchableOpacity>
-              <TouchableOpacity
-                onPress={props.logoutPress}
-                style={styles.iconButton}
-              >
+              <TouchableOpacity onPress={props.logoutPress} style={styles.iconButton}>
                 <MaterialIcons
                   name="logout"
                   size={hp('2.3%')}
@@ -230,6 +227,7 @@ const styles = StyleSheet.create({
     color: ThemeColors.secondary,
     fontWeight: 'bold',
     fontSize: hp('2%'),
+    bottom: hp('2%'),
   },
   contentSection: {
     flex: 1,
