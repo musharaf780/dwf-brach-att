@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -26,9 +26,6 @@ const DashboardLandcape = props => {
   const { loading, employeeList, employeeListError } = useSelector(
     state => state.employee,
   );
-  console.log(JSON.stringify(loading), 'ENPLOYEE LIST loading');
-
-  console.log(JSON.stringify(employeeList), 'ENPLOYEE LIST');
 
   const SearchTile = () => (
     <View style={styles.searchTileContainer}>
@@ -53,6 +50,14 @@ const DashboardLandcape = props => {
       EmployeeDataAction.EmployeeListDataAction(loginSuccess.access_token),
     );
   };
+
+  const GetTheListFromLocal = () => {
+    dispatch(EmployeeDataAction.GetAllEmployeeFromLocalDB());
+  };
+
+  useEffect(() => {
+    GetTheListFromLocal();
+  }, []);
 
   return (
     <View style={styles.mainContainer}>
@@ -119,7 +124,7 @@ const DashboardLandcape = props => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.employeeScroll}
           >
-            {Data.map((item, index) => (
+            {employeeList.map((item, index) => (
               <View key={index.toString()} style={styles.employeeTile}>
                 <EmployyeTileLandscape items={item} />
               </View>

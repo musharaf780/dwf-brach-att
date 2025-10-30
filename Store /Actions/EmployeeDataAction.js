@@ -38,14 +38,23 @@ export const EmployeeListDataAction = token => {
       );
 
       const result = await response.json();
+      console.log(JSON.stringify(result), 'FROM ACTION');
 
       if (result.status === 200 && Array.isArray(result?.sub_employees)) {
-        const data = result.sub_employees.map(emp => ({
-          ...emp,
-          checkIn: !!emp.is_geosess_active,
-        }));
+        let list = result.sub_employees;
+        for (let i = 0; i < list.length; i++) {
+          if (list[i].is_geosess_active) {
+            list[i]['checkIn'] = 1;
+          } else {
+            list[i]['checkIn'] = 0;
+          }
+        }
+        // const data = result.sub_employees.map(emp => ({
+        //   ...emp,
+        //   checkIn: !!emp.is_geosess_active,
+        // }));
 
-        insertEmployeeList(data);
+        insertEmployeeList(list);
         await dispatch(GetAllEmployeeFromLocalDB());
       } else {
         dispatch({
