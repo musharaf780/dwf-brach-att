@@ -6,8 +6,7 @@ import {
   ScrollView,
   TouchableOpacity,
   Image,
-  Platform,
-  StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -113,38 +112,51 @@ const DashboardLandcape = props => {
         </View>
       </View>
 
-      {/* Right Content */}
       <View style={styles.rightContainer}>
-        <View style={styles.searchContainer}>
-          <SearchTile />
-        </View>
-
-        <View style={styles.employeeContainer}>
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.employeeScroll}
+        {loading && (
+          <View
+            style={{ justifyContent: 'center', alignItems: 'center', flex: 1 }}
           >
-            {employeeList.map((item, index) => (
-              <View key={index.toString()} style={styles.employeeTile}>
-                <EmployyeTileLandscape items={item} />
-              </View>
-            ))}
-          </ScrollView>
-        </View>
+            <ActivityIndicator size={'large'} color={ThemeColors.primary} />
+          </View>
+        )}
+        {!loading && (
+          <>
+            <View style={styles.searchContainer}>
+              <SearchTile />
+            </View>
 
-        <View style={styles.bottomContainer}>
-          <TouchableOpacity onPress={SyncEmployeeList} style={styles.bottomBar}>
-            <MaterialIcons
-              name="fact-check"
-              color={ThemeColors.secondary}
-              size={hp('5%')}
-            />
-            <Paragraph
-              style={styles.bottomBarText}
-              text="Push Records to the server"
-            />
-          </TouchableOpacity>
-        </View>
+            <View style={styles.employeeContainer}>
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.employeeScroll}
+              >
+                {employeeList.map((item, index) => (
+                  <View key={index.toString()} style={styles.employeeTile}>
+                    <EmployyeTileLandscape items={item} />
+                  </View>
+                ))}
+              </ScrollView>
+            </View>
+
+            <View style={styles.bottomContainer}>
+              <TouchableOpacity
+                onPress={SyncEmployeeList}
+                style={styles.bottomBar}
+              >
+                <MaterialIcons
+                  name="fact-check"
+                  color={ThemeColors.secondary}
+                  size={hp('5%')}
+                />
+                <Paragraph
+                  style={styles.bottomBarText}
+                  text="Push Records to the server"
+                />
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
     </View>
   );

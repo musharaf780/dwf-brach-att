@@ -2,7 +2,7 @@ import DashboardLandcape from '../Components/Dashboard/DashboardLandcape';
 import DashboardPortrait from '../Components/Dashboard/DashboardPortrait';
 import { useSelector } from 'react-redux';
 import * as AuthAction from '../Store /Actions/AuthAction';
-
+import { View, Text } from 'react-native';
 import { useDispatch } from 'react-redux';
 const SplashScreen = props => {
   const { isTablet } = useSelector(state => state.auth);
