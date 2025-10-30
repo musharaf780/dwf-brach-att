@@ -14,29 +14,12 @@ export const SetIsTabletLanscape = bool => {
   };
 };
 
-// export const UserLoginAction = info => {
-//   return async dispatch => {
-//     dispatch({ type: UserLoginActionConst.USER_LOGIN_REQ });
-//     try {
-//       const url = `${ApiConstants.BaseUrl}/authentication/oauth2/token?client_id=${ApiConstants.Client_id}&client_secret=${ApiConstants.Client_secret}&username=${info.email}&password=${info.password}&password_type=request-body&grant_type=password&login_type=user&db=${ApiConstants.DatabaseName}`;
-
-//       const response = await fetch(url, { method: 'GET', redirect: 'follow' });
-//       const result = await response.json();
-//       console.log(JSON.stringify(result));
-//       if (result?.access_token) {
-// await saveAuthData(result);
-// dispatch({ type: UserLoginActionConst.USER_LOGIN_SUCC, data: result });
-//       } else {
-//         dispatch({ type: UserLoginActionConst.USER_LOGIN_FAIL });
-//       }
-//     } catch (error) {
-//       dispatch({ type: UserLoginActionConst.USER_LOGIN_FAIL });
-//       console.log('Login error:', error);
-//     }
-//   };
-// };
-
 export const UserLoginAction = info => {
+  let emailValidate = new RegExp('[a-z0-9]+@[a-z]+.[a-z]{2,3}');
+
+  const EmailOdId = info.email?.toLowerCase()?.replace(/\s/g, '');
+  const Type = EmailOdId.match(emailValidate) ? 'user' : 'iqama';
+
   return async dispatch => {
     dispatch({ type: UserLoginActionConst.USER_LOGIN_REQ });
     var requestOptions = {
@@ -45,7 +28,7 @@ export const UserLoginAction = info => {
     };
 
     fetch(
-      `${ApiConstants.BaseUrl}/authentication/oauth2/token?client_id=${ApiConstants.Client_id}&client_secret=${ApiConstants.Client_secret}&username=sadikh@dwf.com.sa&password=1&password_type=request-body&grant_type=password&login_type=user&db=${ApiConstants.DatabaseName}`,
+      `${ApiConstants.BaseUrl}/authentication/oauth2/token?client_id=${ApiConstants.Client_id}&client_secret=${ApiConstants.Client_secret}&username=${info.email}&password=${info.password}&password_type=request-body&grant_type=password&login_type=${Type}&db=${ApiConstants.DatabaseName}`,
 
       requestOptions,
     )
@@ -55,6 +38,11 @@ export const UserLoginAction = info => {
           await saveAuthData(result);
           dispatch({
             type: UserLoginActionConst.USER_LOGIN_SUCC,
+            data: result,
+          });
+        } else {
+          dispatch({
+            type: UserLoginActionConst.USER_LOGIN_FAIL,
             data: result,
           });
         }

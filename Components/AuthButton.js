@@ -1,5 +1,10 @@
 import React from 'react';
-import { Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -10,6 +15,7 @@ import Paragraph from './Paragraph';
 const AuthButton = props => {
   return (
     <TouchableOpacity
+      disabled={props.loading}
       onPress={props.onPress}
       style={{
         height: hp('5%'),
@@ -21,10 +27,19 @@ const AuthButton = props => {
         ...props.style,
       }}
     >
-      <Paragraph
-        text={props.text}
-        style={{ color: ThemeColors.primary, fontWeight: '600',...props.testStyle }}
-      />
+      {props.loading && (
+        <ActivityIndicator size={'large'} color={ThemeColors.primary} />
+      )}
+      {!props.loading && (
+        <Paragraph
+          text={props.text}
+          style={{
+            color: ThemeColors.primary,
+            fontWeight: '600',
+            ...props.testStyle,
+          }}
+        />
+      )}
     </TouchableOpacity>
   );
 };
