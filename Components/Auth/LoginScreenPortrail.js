@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Image,
@@ -19,9 +19,36 @@ import AIcon from 'react-native-vector-icons/EvilIcons';
 import IoIcon from 'react-native-vector-icons/Ionicons';
 import AuthButton from '../AuthButton';
 import { ThemeColors } from '../../Constants/Color';
+import * as AuthAction from '../../Store /Actions/AuthAction';
+import { useDispatch, useSelector } from 'react-redux';
+import { showGlobalToast } from '../ToastManager';
 
 const LoginScreenPortrail = props => {
+  const { loader, loginSuccess, loginFail } = useSelector(state => state.auth);
   const [secure, setSecure] = useState(false);
+  const dispatch = useDispatch();
+  const [formfields, setFormfields] = useState({
+    email: 'dammamroad@juicetime.com.sa',
+    password: '1',
+  });
+
+  const LoginHandler = () => {
+    if (formfields.email === '') {
+      showGlobalToast('Email is required', 'error');
+    } else if (formfields.password === '') {
+      showGlobalToast('Password is required', 'error');
+    } else {
+      dispatch(AuthAction.UserLoginAction(formfields));
+    }
+  };
+
+  useEffect(() => {
+    if (loginSuccess) {
+      props.navigate();
+    } else if (loginFail) {
+      showGlobalToast('Oops! Something went wrong', 'error');
+    }
+  }, [loginSuccess, loginFail]);
 
   return (
     <KeyboardAvoidingView
@@ -55,6 +82,13 @@ const LoginScreenPortrail = props => {
                 </View>
                 <View style={styles.textInputWrapper}>
                   <TextInput
+                    value={formfields.email}
+                    onChangeText={value => {
+                      setFormfields({
+                        ...formfields,
+                        email: value,
+                      });
+                    }}
                     style={styles.textInput}
                     placeholderTextColor={ThemeColors.light}
                     placeholder="Email here"
@@ -74,6 +108,13 @@ const LoginScreenPortrail = props => {
                 </View>
                 <View style={styles.textInputWrapperPassword}>
                   <TextInput
+                    value={formfields.password}
+                    onChangeText={value => {
+                      setFormfields({
+                        ...formfields,
+                        password: value,
+                      });
+                    }}
                     secureTextEntry={!secure}
                     style={styles.textInput}
                     placeholderTextColor={ThemeColors.light}
@@ -94,7 +135,8 @@ const LoginScreenPortrail = props => {
             </View>
 
             <AuthButton
-              onPress={props.navigate}
+              loading={loader}
+              onPress={LoginHandler}
               // onPress={() => {
               //   props.navigation.replace('DashboardScreen');
               // }}

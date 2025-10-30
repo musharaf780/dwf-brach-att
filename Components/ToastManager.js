@@ -72,13 +72,13 @@ export const useToast = () => useContext(ToastContext);
 
 const styles = StyleSheet.create({
   toastContainer: {
-    width: '10%',
     position: 'absolute',
-    top: 50,
-    right: 20,
+    bottom: 50,
+    left: '50%',
+    transform: [{ translateX: -width * 0.25 }],
     zIndex: 9999,
-    minWidth: width * 0.2,
-    padding: '2%',
+    minWidth: width * 0.5,
+    paddingHorizontal: 20,
     paddingVertical: 10,
     borderRadius: 10,
     shadowColor: '#000',

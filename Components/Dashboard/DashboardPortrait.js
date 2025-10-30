@@ -76,7 +76,10 @@ const DashboardPortrait = props => {
                   color={ThemeColors.white}
                 />
               </TouchableOpacity>
-              <TouchableOpacity style={styles.iconButton}>
+              <TouchableOpacity
+                onPress={props.logoutPress}
+                style={styles.iconButton}
+              >
                 <MaterialIcons
                   name="logout"
                   size={hp('2.3%')}
