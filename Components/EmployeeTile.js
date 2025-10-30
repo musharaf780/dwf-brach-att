@@ -9,7 +9,7 @@ import { ThemeColors } from '../Constants/Color';
 import Heading from './Heading';
 import Paragraph from './Paragraph';
 
-const EmployeeTile = ({ items }) => {
+const EmployeeTile = ({ items, onItemClick }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -21,18 +21,15 @@ const EmployeeTile = ({ items }) => {
       </View>
 
       <View style={styles.detailsContainer}>
-        <Heading style={styles.name} title={items.Name} />
-        <Paragraph
-          style={styles.dateText}
-          text={new Date(items?.dateandtime).toLocaleString()}
-        />
+        <Heading style={styles.name} title={items?.name} />
 
         <TouchableOpacity
+          onPress={() => onItemClick(items.id)}
           activeOpacity={0.8}
           style={[
             styles.button,
             {
-              backgroundColor: items.isCheckIn
+              backgroundColor: items.checkIn
                 ? ThemeColors.success
                 : ThemeColors.danger,
             },
@@ -48,7 +45,7 @@ const EmployeeTile = ({ items }) => {
           <View style={styles.buttonLabel}>
             <Paragraph
               style={styles.buttonText}
-              text={items.isCheckIn ? 'Check In' : 'Check Out'}
+              text={items.checkIn ? 'Check In' : 'Check Out'}
             />
           </View>
         </TouchableOpacity>
@@ -95,7 +92,7 @@ const styles = StyleSheet.create({
     marginTop: hp('0.3%'),
   },
   button: {
-    height: hp('5%'),
+    height: hp('4%'),
     width: wp('32%'),
     borderRadius: hp('1%'),
     marginTop: hp('0.5%'),

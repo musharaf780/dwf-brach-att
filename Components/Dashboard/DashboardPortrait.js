@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
   View,
   StyleSheet,
@@ -9,6 +9,7 @@ import {
   Image,
   Platform,
   StatusBar,
+  ActivityIndicator,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -20,8 +21,39 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Data } from '../../Constants/Data';
 import EmployeeTile from '../EmployeeTile';
 import Paragraph from '../Paragraph';
+import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
 
 const DashboardPortrait = props => {
+  const { loginSuccess } = useSelector(state => state.auth);
+  const { loading, employeeList } = useSelector(state => state.employee);
+
+  const dispatch = useDispatch();
+
+  const SyncEmployeeList = () => {
+    dispatch(
+      EmployeeDataAction.EmployeeListDataAction(loginSuccess.access_token),
+    );
+  };
+
+  const GetTheListFromLocal = () => {
+    dispatch(EmployeeDataAction.GetAllEmployeeFromLocalDB());
+  };
+
+  const handleItemClick = async id => {
+    console.log(id);
+    const success = await toggleEmployeeCheckIn(id);
+    if (success) {
+      GetTheListFromLocal();
+    }
+    // toggleEmployeeCheckIn(id);
+  };
+
+  useEffect(() => {
+    GetTheListFromLocal();
+  }, []);
+
   const SearchTile = () => (
     <View style={styles.searchContainer}>
       <TextInput
@@ -69,14 +101,20 @@ const DashboardPortrait = props => {
 
             {/* Action Icons */}
             <View style={styles.iconContainer}>
-              <TouchableOpacity style={styles.iconButton}>
+              <TouchableOpacity
+                onPress={SyncEmployeeList}
+                style={styles.iconButton}
+              >
                 <MaterialIcons
                   name="sync"
                   size={hp('2.3%')}
                   color={ThemeColors.white}
                 />
               </TouchableOpacity>
-              <TouchableOpacity onPress={props.logoutPress} style={styles.iconButton}>
+              <TouchableOpacity
+                onPress={props.logoutPress}
+                style={styles.iconButton}
+              >
                 <MaterialIcons
                   name="logout"
                   size={hp('2.3%')}
@@ -98,7 +136,7 @@ const DashboardPortrait = props => {
 
             <View style={styles.statCard}>
               <View style={styles.statLeft}>
-                <Paragraph style={styles.statTitle} text={`Today’s`} />
+                <Paragraph style={styles.statTitle} text={`Today’s\n`} />
               </View>
               <View style={styles.statRight}>
                 <Paragraph style={styles.statValue} text={`100`} />
@@ -112,14 +150,31 @@ const DashboardPortrait = props => {
           <View style={styles.innerContainer}>
             <SearchTile />
 
-            <ScrollView
-              showsVerticalScrollIndicator={false}
-              contentContainerStyle={styles.scrollContent}
-            >
-              {Data.map((item, index) => (
-                <EmployeeTile key={index.toString()} items={item} />
-              ))}
-            </ScrollView>
+            {loading && (
+              <View
+                style={{
+                  flex: 1,
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}
+              >
+                <ActivityIndicator size={'large'} color={ThemeColors.primary} />
+              </View>
+            )}
+            {!loading && (
+              <ScrollView
+                showsVerticalScrollIndicator={false}
+                contentContainerStyle={styles.scrollContent}
+              >
+                {employeeList.map((item, index) => (
+                  <EmployeeTile
+                    onItemClick={handleItemClick}
+                    key={index.toString()}
+                    items={item}
+                  />
+                ))}
+              </ScrollView>
+            )}
           </View>
 
           {/* Bottom Bar */}
