@@ -94,7 +94,10 @@ const DashboardLandcape = props => {
 
         {/* Sync + Logout */}
         <View style={styles.footerButtonsContainer}>
-          <TouchableOpacity style={styles.footerButton}>
+          <TouchableOpacity
+            onPress={SyncEmployeeList}
+            style={styles.footerButton}
+          >
             <MaterialIcons
               name="sync"
               size={hp('3%')}
@@ -151,10 +154,7 @@ const DashboardLandcape = props => {
             </View>
 
             <View style={styles.bottomContainer}>
-              <TouchableOpacity
-                onPress={SyncEmployeeList}
-                style={styles.bottomBar}
-              >
+              <TouchableOpacity onPress={() => {}} style={styles.bottomBar}>
                 <MaterialIcons
                   name="fact-check"
                   color={ThemeColors.secondary}
