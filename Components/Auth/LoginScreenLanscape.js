@@ -22,11 +22,14 @@ import { ThemeColors } from '../../Constants/Color';
 import * as AuthAction from '../../Store /Actions/AuthAction';
 import { useDispatch } from 'react-redux';
 import { getAuthData } from '../../DB/AuthDatabse';
+import { showGlobalToast } from '../ToastManager';
 const LoginScreenLandscape = props => {
   const [secure, setSecure] = useState(false);
   const dispatch = useDispatch();
 
   const LoginHandler = () => {
+    showGlobalToast('This is a success toast! This is a', 'error');
+    return;
     dispatch(AuthAction.UserLoginAction('ammamroad@juicetime.com.sa', '1'));
   };
 
