@@ -11,12 +11,15 @@ import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import AuthReducer from './Store /Reducers/AuthReducer';
+import EmployeeDataReducer from './Store /Reducers/EmployeeDataReducer';
+
 import DeviceInfo from 'react-native-device-info';
 import { SetIsTabletLanscape } from './Store /Actions/AuthAction';
 import { ToastProvider } from './Components/ToastManager';
 const App = () => {
   const rootReducer = combineReducers({
     auth: AuthReducer,
+    employee: EmployeeDataReducer,
   });
 
   const store = createStore(rootReducer, applyMiddleware(ReduxThunk));

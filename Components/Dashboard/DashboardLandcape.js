@@ -22,7 +22,14 @@ import EmployyeTileLandscape from '../EmployyeTileLandscape';
 import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
 import { useDispatch, useSelector } from 'react-redux';
 const DashboardLandcape = props => {
-  const { isTablet, loginSuccess } = useSelector(state => state.auth);
+  const { loginSuccess } = useSelector(state => state.auth);
+  const { loading, employeeList, employeeListError } = useSelector(
+    state => state.employee,
+  );
+  console.log(JSON.stringify(loading), 'ENPLOYEE LIST loading');
+
+  console.log(JSON.stringify(employeeList), 'ENPLOYEE LIST');
+
   const SearchTile = () => (
     <View style={styles.searchTileContainer}>
       <TextInput
@@ -42,7 +49,9 @@ const DashboardLandcape = props => {
   const dispatch = useDispatch();
 
   const SyncEmployeeList = () => {
-    dispatch(EmployeeDataAction.UserListDataAction(loginSuccess.access_token));
+    dispatch(
+      EmployeeDataAction.EmployeeListDataAction(loginSuccess.access_token),
+    );
   };
 
   return (

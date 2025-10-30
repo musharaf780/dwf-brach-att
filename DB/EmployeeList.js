@@ -108,3 +108,26 @@ export const insertEmployeeList = records => {
     () => console.log('✅ All records inserted successfully'),
   );
 };
+
+export const getAllEmployees = () => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'SELECT * FROM employees',
+        [],
+        (_, result) => {
+          const rows = result.rows;
+          const employees = [];
+          for (let i = 0; i < rows.length; i++) {
+            employees.push(rows.item(i));
+          }
+          resolve(employees);
+        },
+        (_, error) => {
+          console.log('❌ Fetch error:', error.message);
+          reject(error);
+        },
+      );
+    });
+  });
+};

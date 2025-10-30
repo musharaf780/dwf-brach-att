@@ -1,40 +1,65 @@
 import ApiConstants from '../../Constants/ApiConstants';
-import { insertEmployeeList } from '../../DB/EmployeeList';
+import { insertEmployeeList, getAllEmployees } from '../../DB/EmployeeList';
+import { EmployeeListDataActionConst } from '../Constants/EmployeeDataConst';
 
-export const UserListDataAction = token => {
+export const GetAllEmployeeFromLocalDB = () => {
   return async dispatch => {
     try {
+      const employees = await getAllEmployees();
+      if (employees.length > 0) {
+        dispatch({
+          type: EmployeeListDataActionConst.GET_EMPLOYEE_LIST_SUCC,
+          data: employees,
+        });
+      } else {
+        dispatch({
+          type: EmployeeListDataActionConst.GET_EMPLOYEE_LIST_FAIL,
+          message: 'There is no data to sync',
+        });
+      }
+    } catch (error) {
+      console.log('Error loading employees from local DB:', error.message);
+    }
+  };
+};
+
+export const EmployeeListDataAction = token => {
+  return async dispatch => {
+    try {
+      dispatch({ type: EmployeeListDataActionConst.GET_EMPLOYEE_LIST_RED });
+      await dispatch(GetAllEmployeeFromLocalDB());
+
       const myHeaders = new Headers();
       myHeaders.append('Authorization', `Bearer ${token}`);
 
-      const requestOptions = {
-        method: 'GET',
-        headers: myHeaders,
-        redirect: 'follow',
-      };
-
       const response = await fetch(
         `${ApiConstants.BaseUrl}/user/fetch_subordinates?db=${ApiConstants.DatabaseName}`,
-        requestOptions,
+        { method: 'GET', headers: myHeaders, redirect: 'follow' },
       );
 
       const result = await response.json();
 
-      if (result.status === 200) {
-        const data = Array.isArray(result?.sub_employees)
-          ? result.sub_employees.map(emp => ({
-              ...emp,
-              checkIn: !!emp.is_geosess_active,
-            }))
-          : [];
+      if (result.status === 200 && Array.isArray(result?.sub_employees)) {
+        const data = result.sub_employees.map(emp => ({
+          ...emp,
+          checkIn: !!emp.is_geosess_active,
+        }));
 
         insertEmployeeList(data);
+        await dispatch(GetAllEmployeeFromLocalDB());
       } else {
-        console.log('Unable to save user list data:', result);
+        dispatch({
+          type: EmployeeListDataActionConst.GET_EMPLOYEE_LIST_FAIL,
+          message: 'Unable to fetch employee list. Please try again later.',
+        });
       }
     } catch (error) {
-      console.log('Error fetching user list:', error);
-      // dispatch({ type: 'FETCH_USER_LIST_FAIL', payload: error });
+      console.log('Error fetching employee list:', error);
+      dispatch({
+        type: EmployeeListDataActionConst.GET_EMPLOYEE_LIST_FAIL,
+        message:
+          'Something went wrong while loading employees. Please check your connection.',
+      });
     }
   };
 };
