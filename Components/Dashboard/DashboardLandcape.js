@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -20,11 +21,10 @@ import Paragraph from '../Paragraph';
 import EmployyeTileLandscape from '../EmployyeTileLandscape';
 import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
 import { useDispatch, useSelector } from 'react-redux';
+import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
 const DashboardLandcape = props => {
   const { loginSuccess } = useSelector(state => state.auth);
-  const { loading, employeeList, employeeListError } = useSelector(
-    state => state.employee,
-  );
+  const { loading, employeeList } = useSelector(state => state.employee);
 
   const SearchTile = () => (
     <View style={styles.searchTileContainer}>
@@ -52,6 +52,14 @@ const DashboardLandcape = props => {
 
   const GetTheListFromLocal = () => {
     dispatch(EmployeeDataAction.GetAllEmployeeFromLocalDB());
+  };
+
+  const handleItemClick = async id => {
+    const success = await toggleEmployeeCheckIn(id);
+    if (success) {
+      GetTheListFromLocal();
+    }
+    // toggleEmployeeCheckIn(id);
   };
 
   useEffect(() => {
@@ -133,7 +141,10 @@ const DashboardLandcape = props => {
               >
                 {employeeList.map((item, index) => (
                   <View key={index.toString()} style={styles.employeeTile}>
-                    <EmployyeTileLandscape items={item} />
+                    <EmployyeTileLandscape
+                      onItemClick={handleItemClick}
+                      items={item}
+                    />
                   </View>
                 ))}
               </ScrollView>

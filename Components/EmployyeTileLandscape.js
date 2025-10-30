@@ -9,7 +9,7 @@ import { ThemeColors } from '../Constants/Color';
 import Heading from './Heading';
 import Paragraph from './Paragraph';
 
-const EmployyeTileLandscape = ({ items }) => {
+const EmployyeTileLandscape = ({ items, onItemClick }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -25,6 +25,7 @@ const EmployyeTileLandscape = ({ items }) => {
         <Paragraph style={styles.dateText} text={''} />
 
         <TouchableOpacity
+          onPress={() => onItemClick(items.id)}
           activeOpacity={0.8}
           style={[
             styles.button,

@@ -131,3 +131,52 @@ export const getAllEmployees = () => {
     });
   });
 };
+
+export const toggleEmployeeCheckIn = id => {
+  return new Promise((resolve, reject) => {
+    if (!id) {
+      console.log('❌ ID is required');
+      resolve(false);
+      return;
+    }
+    db.transaction(
+      tx => {
+        tx.executeSql(
+          'SELECT checkIn FROM employees WHERE id = ?',
+          [id],
+          (_, result) => {
+            if (result.rows.length === 0) {
+              console.log('⚠️ No employee found with ID:', id);
+              resolve(false);
+              return;
+            }
+
+            const currentCheckIn = result.rows.item(0).checkIn;
+            const newCheckIn = currentCheckIn === 1 ? 0 : 1;
+
+            tx.executeSql(
+              'UPDATE employees SET checkIn = ? WHERE id = ?',
+              [newCheckIn, id],
+              () => {
+                console.log(`✅ checkIn updated to ${newCheckIn} for ID ${id}`);
+                resolve(true);
+              },
+              (_, error) => {
+                console.log('❌ Update error:', error.message);
+                resolve(false);
+              },
+            );
+          },
+          (_, error) => {
+            console.log('❌ Select error:', error.message);
+            resolve(false);
+          },
+        );
+      },
+      error => {
+        console.log('❌ Transaction error:', error.message);
+        resolve(false);
+      },
+    );
+  });
+};
