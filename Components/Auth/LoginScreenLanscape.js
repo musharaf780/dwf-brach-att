@@ -28,7 +28,7 @@ const LoginScreenLandscape = props => {
   const [secure, setSecure] = useState(false);
   const dispatch = useDispatch();
   const [formfields, setFormfields] = useState({
-    email: 'dammamroad@juicetime.com.sa',
+    email: '',
     password: '1',
   });
 
