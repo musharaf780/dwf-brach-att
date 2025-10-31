@@ -26,11 +26,15 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
 import CameraPopupPortrail from './CameraPopup/CameraPopupPortrail';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
+import ImageResizer from 'react-native-image-resizer';
+import RNFS from 'react-native-fs';
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
 
   const [hasPermission, setHasPermission] = useState(false);
+
+  const [imageString, setImageString] = useState(null);
 
   const camera = useRef(null);
   const [showCameraPopup, setShowCameraPopup] = useState(false);
@@ -88,19 +92,47 @@ const DashboardPortrait = props => {
 
   const capturePhoto = async () => {
     if (camera.current == null) return;
-
     try {
       const photo = await camera.current.takePhoto({
         flash: 'off',
       });
-      console.log('📸 Photo captured:', photo);
-      console.log('Photo Captured', 'Front camera photo saved successfully!');
-      if (photo) {
-        setShowCameraPopup(false);
-      }
+
+      const compressed = await ImageResizer.createResizedImage(
+        photo.path,
+        500,
+        500,
+        'JPEG',
+        30,
+        -90, // rotation (keep 0 to respect EXIF)
+        undefined, // outputPath
+        false, // keepExif (true in some versions)
+        {
+          mode: 'contain',
+          onlyScaleDown: false,
+          compressFormat: 'JPEG',
+          keepMeta: true,
+        },
+      );
+      const base64 = await RNFS.readFile(compressed.path, 'base64');
+
+      console.log('🧩 Short Base64 Preview:', JSON.stringify());
+      setImageString(base64);
     } catch (error) {
-      console.error('Error capturing photo:', error);
+      console.error('❌ Error capturing photo:', error);
     }
+
+    // try {
+    //   const photo = await camera.current.takePhoto({
+    //     flash: 'off',
+    //   });
+    //   console.log('📸 Photo captured:', photo);
+    //   console.log('Photo Captured', 'Front camera photo saved successfully!');
+    //   if (photo) {
+    //     setShowCameraPopup(false);
+    //   }
+    // } catch (error) {
+    //   console.error('Error capturing photo:', error);
+    // }
   };
 
   return (
@@ -223,15 +255,31 @@ const DashboardPortrait = props => {
           </TouchableOpacity>
         </View>
       </View>
-      <CameraPopupPortrail onCapture={capturePhoto} visible={showCameraPopup}>
+      <CameraPopupPortrail
+        onRetake={() => setImageString(null)}
+        imageHave={imageString}
+        onCapture={capturePhoto}
+        visible={showCameraPopup}
+        onClose={() => {
+          setImageString(null);
+          setShowCameraPopup(false);
+        }}
+      >
         <View style={{ height: '100%', width: '100%' }}>
-          <Camera
-            ref={camera}
-            style={{ flex: 1 }}
-            device={deviceFront}
-            isActive={showCameraPopup}
-            photo={true}
-          />
+          {imageString ? (
+            <Image
+              style={{ height: '100%', width: '100%' }}
+              source={{ uri: `data:image/jpeg;base64,${imageString}` }}
+            />
+          ) : (
+            <Camera
+              ref={camera}
+              style={{ flex: 1 }}
+              device={deviceFront}
+              isActive={showCameraPopup}
+              photo={true}
+            />
+          )}
         </View>
       </CameraPopupPortrail>
     </SafeAreaView>
