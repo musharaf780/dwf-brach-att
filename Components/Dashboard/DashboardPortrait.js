@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   StyleSheet,
@@ -24,11 +24,11 @@ import Paragraph from '../Paragraph';
 import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
-
+import CameraPopupPortrail from './CameraPopup/CameraPopupPortrail';
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
-
+  const [showCamera, setShowCamera] = useState(false);
   const dispatch = useDispatch();
 
   const SyncEmployeeList = () => {
@@ -42,12 +42,10 @@ const DashboardPortrait = props => {
   };
 
   const handleItemClick = async id => {
-    console.log(id);
     const success = await toggleEmployeeCheckIn(id);
     if (success) {
       GetTheListFromLocal();
     }
-    // toggleEmployeeCheckIn(id);
   };
 
   useEffect(() => {
@@ -191,6 +189,11 @@ const DashboardPortrait = props => {
           </TouchableOpacity>
         </View>
       </View>
+      <CameraPopupPortrail visible={showCamera}>
+        <View
+          style={{ height: '100%', width: '100%', backgroundColor: 'red' }}
+        ></View>
+      </CameraPopupPortrail>
     </SafeAreaView>
   );
 };

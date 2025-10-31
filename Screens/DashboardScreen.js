@@ -8,6 +8,7 @@ const SplashScreen = props => {
   const { isTablet } = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
+  
   return isTablet ? (
     <DashboardLandcape
       logoutPress={() => {

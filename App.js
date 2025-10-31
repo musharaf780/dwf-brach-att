@@ -1,5 +1,6 @@
 // App.js
 import React, { useEffect } from 'react';
+
 import MainNavigator from './Nvigation/MianNavigator';
 import { initDB } from './DB/Database';
 import { initAuthDB } from './DB/AuthDatabse';
