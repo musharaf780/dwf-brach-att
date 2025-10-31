@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   StyleSheet,
@@ -25,10 +25,18 @@ import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
 import CameraPopupPortrail from './CameraPopup/CameraPopupPortrail';
+import { Camera, useCameraDevice } from 'react-native-vision-camera';
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
-  const [showCamera, setShowCamera] = useState(false);
+
+  const [hasPermission, setHasPermission] = useState(false);
+
+  const camera = useRef(null);
+  const [showCameraPopup, setShowCameraPopup] = useState(false);
+
+  const deviceFront = useCameraDevice('front');
+
   const dispatch = useDispatch();
 
   const SyncEmployeeList = () => {
@@ -42,11 +50,20 @@ const DashboardPortrait = props => {
   };
 
   const handleItemClick = async id => {
+    setShowCameraPopup(true);
     const success = await toggleEmployeeCheckIn(id);
     if (success) {
       GetTheListFromLocal();
     }
   };
+
+  useEffect(() => {
+    const getPermissions = async () => {
+      const granted = await askCameraPermission();
+      setHasPermission(granted);
+    };
+    getPermissions();
+  }, []);
 
   useEffect(() => {
     GetTheListFromLocal();
@@ -68,6 +85,23 @@ const DashboardPortrait = props => {
       </TouchableOpacity>
     </View>
   );
+
+  const capturePhoto = async () => {
+    if (camera.current == null) return;
+
+    try {
+      const photo = await camera.current.takePhoto({
+        flash: 'off',
+      });
+      console.log('📸 Photo captured:', photo);
+      console.log('Photo Captured', 'Front camera photo saved successfully!');
+      if (photo) {
+        setShowCameraPopup(false);
+      }
+    } catch (error) {
+      console.error('Error capturing photo:', error);
+    }
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -189,10 +223,16 @@ const DashboardPortrait = props => {
           </TouchableOpacity>
         </View>
       </View>
-      <CameraPopupPortrail visible={showCamera}>
-        <View
-          style={{ height: '100%', width: '100%', backgroundColor: 'red' }}
-        ></View>
+      <CameraPopupPortrail onCapture={capturePhoto} visible={showCameraPopup}>
+        <View style={{ height: '100%', width: '100%' }}>
+          <Camera
+            ref={camera}
+            style={{ flex: 1 }}
+            device={deviceFront}
+            isActive={showCameraPopup}
+            photo={true}
+          />
+        </View>
       </CameraPopupPortrail>
     </SafeAreaView>
   );
