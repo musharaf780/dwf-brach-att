@@ -15,6 +15,7 @@ import Paragraph from './Paragraph';
 const AuthButton = props => {
   return (
     <TouchableOpacity
+    
       disabled={props.loading}
       onPress={props.onPress}
       style={{

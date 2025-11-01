@@ -32,18 +32,20 @@ import RNFS from 'react-native-fs';
 import {
   insertAttendanceRecord,
   getUnpushedRecordsCount,
+  getAllAttendanceRecords,
 } from '../../DB/EmployeePendingShift';
 import { showGlobalToast } from '../ToastManager';
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
   const [pendingCount, setPendingCounts] = useState(0);
-
+  const isProcessingRef = useRef(false);
   const [hasPermission, setHasPermission] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [imageString, setImageString] = useState(null);
 
   const camera = useRef(null);
+  const isCapturingRef = useRef(false);
   const [showCameraPopup, setShowCameraPopup] = useState(false);
 
   const deviceFront = useCameraDevice('front');
@@ -99,7 +101,14 @@ const DashboardPortrait = props => {
   );
 
   const capturePhoto = async () => {
-    if (camera.current == null) return;
+    if (isCapturingRef.current) return;
+    isCapturingRef.current = true;
+
+    if (camera.current == null) {
+      isCapturingRef.current = false;
+      return;
+    }
+
     try {
       const photo = await camera.current.takePhoto({
         flash: 'off',
@@ -107,8 +116,8 @@ const DashboardPortrait = props => {
 
       const compressed = await ImageResizer.createResizedImage(
         photo.path,
-        500,
-        500,
+        400,
+        400,
         'JPEG',
         20,
         -90, // rotation (keep 0 to respect EXIF)
@@ -127,10 +136,14 @@ const DashboardPortrait = props => {
       setImageString(base64);
     } catch (error) {
       console.log('Error capturing photo:', error);
+    } finally {
+      isCapturingRef.current = false;
     }
   };
 
   const ProceedHandler = async () => {
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
     try {
       let employeeId = selectedEmployee.id;
       const currentDate = new Date();
@@ -186,6 +199,8 @@ const DashboardPortrait = props => {
       setSelectedEmployee(null);
       showGlobalToast('Something went wrong while saving your shift.', 'error');
       setShowCameraPopup(false);
+    } finally {
+      isProcessingRef.current = false; // 🔓 unlock instantly
     }
   };
 
@@ -317,6 +332,7 @@ const DashboardPortrait = props => {
         </View>
       </View>
       <CameraPopupPortrail
+        loading={isProcessingRef.current}
         onProceed={ProceedHandler}
         visible={showCameraPopup}
         imageHave={imageString}

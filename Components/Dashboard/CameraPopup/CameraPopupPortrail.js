@@ -23,6 +23,7 @@ const CameraPopupPortrait = ({
   onRetake,
   onClose,
   onProceed,
+  loading,
 }) => {
   return (
     <Modal visible={visible} animationType="fade" transparent={true}>
@@ -39,6 +40,7 @@ const CameraPopupPortrait = ({
               {imageHave ? (
                 <>
                   <AuthButton
+                    loading={loading}
                     text="Proceed"
                     style={{
                       ...styles.captureButton,
@@ -48,6 +50,7 @@ const CameraPopupPortrait = ({
                     onPress={onProceed}
                   />
                   <AuthButton
+                    loading={loading}
                     text="Retake"
                     style={{ ...styles.captureButton, marginTop: hp('1%') }}
                     testStyle={{ color: ThemeColors.secondary }}
@@ -56,6 +59,7 @@ const CameraPopupPortrait = ({
                 </>
               ) : (
                 <AuthButton
+                  loading={loading}
                   text="Capture"
                   style={styles.captureButton}
                   testStyle={{ color: ThemeColors.secondary }}
@@ -64,7 +68,11 @@ const CameraPopupPortrait = ({
               )}
             </>
 
-            <TouchableOpacity onPress={onClose} style={{ marginTop: hp('1%') }}>
+            <TouchableOpacity
+              disabled={loading}
+              onPress={onClose}
+              style={{ marginTop: hp('1%') }}
+            >
               <Paragraph
                 style={{
                   color: ThemeColors.danger,

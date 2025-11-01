@@ -94,6 +94,7 @@ export const getAllAttendanceRecords = (success, error) => {
           records.push(row);
         }
 
+        console.log(JSON.stringify(records));
         success && success(records);
       },
       (_, err) => {
