@@ -33,7 +33,7 @@ const DashboardPortrait = props => {
   const { loading, employeeList } = useSelector(state => state.employee);
 
   const [hasPermission, setHasPermission] = useState(false);
-
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [imageString, setImageString] = useState(null);
 
   const camera = useRef(null);
@@ -53,12 +53,13 @@ const DashboardPortrait = props => {
     dispatch(EmployeeDataAction.GetAllEmployeeFromLocalDB());
   };
 
-  const handleItemClick = async id => {
+  const handleItemClick = async item => {
+    setSelectedEmployee(item);
     setShowCameraPopup(true);
-    const success = await toggleEmployeeCheckIn(id);
-    if (success) {
-      GetTheListFromLocal();
-    }
+    // const success = await toggleEmployeeCheckIn(id);
+    // if (success) {
+    //   GetTheListFromLocal();
+    // }
   };
 
   useEffect(() => {
@@ -102,7 +103,7 @@ const DashboardPortrait = props => {
         500,
         500,
         'JPEG',
-        30,
+        15,
         -90, // rotation (keep 0 to respect EXIF)
         undefined, // outputPath
         false, // keepExif (true in some versions)
@@ -118,21 +119,43 @@ const DashboardPortrait = props => {
       console.log('🧩 Short Base64 Preview:', JSON.stringify());
       setImageString(base64);
     } catch (error) {
-      console.error('❌ Error capturing photo:', error);
+      console.log('Error capturing photo:', error);
     }
+  };
 
-    // try {
-    //   const photo = await camera.current.takePhoto({
-    //     flash: 'off',
-    //   });
-    //   console.log('📸 Photo captured:', photo);
-    //   console.log('Photo Captured', 'Front camera photo saved successfully!');
-    //   if (photo) {
-    //     setShowCameraPopup(false);
-    //   }
-    // } catch (error) {
-    //   console.error('Error capturing photo:', error);
-    // }
+  const ProceedHandler = () => {
+    const currentDate = new Date();
+    const utcDate = new Date(currentDate.toUTCString());
+    const formattedDate = utcDate.toISOString().slice(0, 19).replace('T', ' ');
+    const PadNumberWithZeros = num => String(num).padStart(6, '0');
+
+    const manipulateNumber = num => {
+      const numStr = String(num);
+      return numStr.length < 3 ? numStr.padEnd(3, '0') : numStr.slice(0, 3);
+    };
+    const milliseconds = String(currentDate.getMilliseconds()).slice(0, 3);
+    const [formattedDateOnly, formattedTimeOnly] = formattedDate
+      .split(' ')
+      .map(part => part.split(/[-:]/));
+    const ModifiedUniqueString = `${formattedDateOnly[0]}${
+      formattedDateOnly[1]
+    }${formattedDateOnly[2]}${formattedTimeOnly[0]}${formattedTimeOnly[1]}${
+      formattedTimeOnly[2]
+    }${manipulateNumber(milliseconds)}${PadNumberWithZeros(
+      selectedEmployee.id,
+    )}${selectedEmployee?.checkIn ? 2 : 1}`;
+
+    const data = {
+      api_call_for: selectedEmployee.checkIn ? 'checkout' : 'checkin',
+      employee_id: selectedEmployee.id,
+      add_date_flag: true,
+      attachment: {
+        name: currentDate.toString(),
+        type: 'binary',
+        datas: imageString,
+      },
+      last_sync_seq: ModifiedUniqueString,
+    };
   };
 
   return (
@@ -256,6 +279,7 @@ const DashboardPortrait = props => {
         </View>
       </View>
       <CameraPopupPortrail
+        onProceed={ProceedHandler}
         visible={showCameraPopup}
         imageHave={imageString}
         onCapture={capturePhoto}

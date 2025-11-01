@@ -24,7 +24,7 @@ const EmployeeTile = ({ items, onItemClick }) => {
         <Heading style={styles.name} title={items?.name} />
 
         <TouchableOpacity
-          onPress={() => onItemClick(items.id)}
+          onPress={() => onItemClick(items)}
           activeOpacity={0.8}
           style={[
             styles.button,

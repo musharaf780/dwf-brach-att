@@ -1,5 +1,11 @@
 import React from 'react';
-import { View, Modal, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Modal,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -16,6 +22,7 @@ const CameraPopupPortrait = ({
   imageHave,
   onRetake,
   onClose,
+  onProceed,
 }) => {
   return (
     <Modal visible={visible} animationType="fade" transparent={true}>
@@ -28,32 +35,34 @@ const CameraPopupPortrait = ({
           <View style={styles.content}>{children}</View>
 
           <View style={styles.footer}>
-            {imageHave ? (
-              <>
+            <>
+              {imageHave ? (
+                <>
+                  <AuthButton
+                    text="Proceed"
+                    style={{
+                      ...styles.captureButton,
+                      backgroundColor: ThemeColors.success,
+                    }}
+                    testStyle={{ color: ThemeColors.secondary }}
+                    onPress={onProceed}
+                  />
+                  <AuthButton
+                    text="Retake"
+                    style={{ ...styles.captureButton, marginTop: hp('1%') }}
+                    testStyle={{ color: ThemeColors.secondary }}
+                    onPress={onRetake}
+                  />
+                </>
+              ) : (
                 <AuthButton
-                  text="Proceed"
-                  style={{
-                    ...styles.captureButton,
-                    backgroundColor: ThemeColors.success,
-                  }}
+                  text="Capture"
+                  style={styles.captureButton}
                   testStyle={{ color: ThemeColors.secondary }}
                   onPress={onCapture}
                 />
-                <AuthButton
-                  text="Retake"
-                  style={{ ...styles.captureButton, marginTop: hp('1%') }}
-                  testStyle={{ color: ThemeColors.secondary }}
-                  onPress={onRetake}
-                />
-              </>
-            ) : (
-              <AuthButton
-                text="Capture"
-                style={styles.captureButton}
-                testStyle={{ color: ThemeColors.secondary }}
-                onPress={onCapture}
-              />
-            )}
+              )}
+            </>
 
             <TouchableOpacity onPress={onClose} style={{ marginTop: hp('1%') }}>
               <Paragraph
