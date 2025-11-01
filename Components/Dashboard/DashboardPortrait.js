@@ -256,29 +256,52 @@ const DashboardPortrait = props => {
         </View>
       </View>
       <CameraPopupPortrail
-        onRetake={() => setImageString(null)}
+        visible={showCameraPopup}
         imageHave={imageString}
         onCapture={capturePhoto}
-        visible={showCameraPopup}
+        onRetake={() => setImageString(null)}
         onClose={() => {
           setImageString(null);
           setShowCameraPopup(false);
         }}
       >
-        <View style={{ height: '100%', width: '100%' }}>
+        <View
+          style={{
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            flex: 1,
+          }}
+        >
           {imageString ? (
             <Image
-              style={{ height: '100%', width: '100%' }}
+              style={{
+                width: '90%',
+                aspectRatio: 3 / 4,
+                borderRadius: 10,
+                resizeMode: 'contain',
+              }}
               source={{ uri: `data:image/jpeg;base64,${imageString}` }}
             />
           ) : (
-            <Camera
-              ref={camera}
-              style={{ flex: 1 }}
-              device={deviceFront}
-              isActive={showCameraPopup}
-              photo={true}
-            />
+            <View
+              style={{
+                width: '90%',
+                aspectRatio: 3 / 4,
+                borderRadius: 10,
+                overflow: 'hidden', // Prevents camera overflow
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Camera
+                ref={camera}
+                style={{ width: '100%', height: '100%' }}
+                device={deviceFront}
+                isActive={showCameraPopup}
+                photo={true}
+              />
+            </View>
           )}
         </View>
       </CameraPopupPortrail>

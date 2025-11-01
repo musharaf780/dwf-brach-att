@@ -28,16 +28,25 @@ const CameraPopupPortrait = ({
           <View style={styles.content}>{children}</View>
 
           <View style={styles.footer}>
-            {imageHave && (
-              <AuthButton
-                text="Retake"
-                style={styles.captureButton}
-                testStyle={{ color: ThemeColors.secondary }}
-                onPress={onRetake}
-              />
-            )}
-
-            {!imageHave && (
+            {imageHave ? (
+              <>
+                <AuthButton
+                  text="Proceed"
+                  style={{
+                    ...styles.captureButton,
+                    backgroundColor: ThemeColors.success,
+                  }}
+                  testStyle={{ color: ThemeColors.secondary }}
+                  onPress={onCapture}
+                />
+                <AuthButton
+                  text="Retake"
+                  style={{ ...styles.captureButton, marginTop: hp('1%') }}
+                  testStyle={{ color: ThemeColors.secondary }}
+                  onPress={onRetake}
+                />
+              </>
+            ) : (
               <AuthButton
                 text="Capture"
                 style={styles.captureButton}
@@ -45,6 +54,7 @@ const CameraPopupPortrait = ({
                 onPress={onCapture}
               />
             )}
+
             <TouchableOpacity onPress={onClose} style={{ marginTop: hp('1%') }}>
               <Paragraph
                 style={{
@@ -70,11 +80,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    height: hp('70%'),
-    width: wp('80%'),
+    height: hp('75%'),
+    width: wp('85%'),
     backgroundColor: ThemeColors.secondary,
     borderRadius: wp('5%'),
     overflow: 'hidden',
+    paddingBottom: hp('1%'),
   },
   header: {
     height: '10%',
@@ -84,12 +95,12 @@ const styles = StyleSheet.create({
   heading: {
     fontSize: hp('3%'),
     color: ThemeColors.primary,
+    top: hp('1%'),
   },
   content: {
     height: '70%',
     justifyContent: 'center',
     alignItems: 'center',
-    paddingHorizontal: wp('5%'),
   },
   footer: {
     height: '20%',
