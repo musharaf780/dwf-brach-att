@@ -28,6 +28,8 @@ import CameraPopupPortrail from './CameraPopup/CameraPopupPortrail';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
+import { insertAttendanceRecord } from '../../DB/EmployeePendingShift';
+import { showGlobalToast } from '../ToastManager';
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
@@ -103,7 +105,7 @@ const DashboardPortrait = props => {
         500,
         500,
         'JPEG',
-        15,
+        20,
         -90, // rotation (keep 0 to respect EXIF)
         undefined, // outputPath
         false, // keepExif (true in some versions)
@@ -123,39 +125,62 @@ const DashboardPortrait = props => {
     }
   };
 
-  const ProceedHandler = () => {
-    const currentDate = new Date();
-    const utcDate = new Date(currentDate.toUTCString());
-    const formattedDate = utcDate.toISOString().slice(0, 19).replace('T', ' ');
-    const PadNumberWithZeros = num => String(num).padStart(6, '0');
+  const ProceedHandler = async () => {
+    try {
+      let employeeId = selectedEmployee.id;
+      const currentDate = new Date();
+      const utcDate = new Date(currentDate.toUTCString());
+      const formattedDate = utcDate
+        .toISOString()
+        .slice(0, 19)
+        .replace('T', ' ');
+      const PadNumberWithZeros = num => String(num).padStart(6, '0');
 
-    const manipulateNumber = num => {
-      const numStr = String(num);
-      return numStr.length < 3 ? numStr.padEnd(3, '0') : numStr.slice(0, 3);
-    };
-    const milliseconds = String(currentDate.getMilliseconds()).slice(0, 3);
-    const [formattedDateOnly, formattedTimeOnly] = formattedDate
-      .split(' ')
-      .map(part => part.split(/[-:]/));
-    const ModifiedUniqueString = `${formattedDateOnly[0]}${
-      formattedDateOnly[1]
-    }${formattedDateOnly[2]}${formattedTimeOnly[0]}${formattedTimeOnly[1]}${
-      formattedTimeOnly[2]
-    }${manipulateNumber(milliseconds)}${PadNumberWithZeros(
-      selectedEmployee.id,
-    )}${selectedEmployee?.checkIn ? 2 : 1}`;
+      const manipulateNumber = num => {
+        const numStr = String(num);
+        return numStr.length < 3 ? numStr.padEnd(3, '0') : numStr.slice(0, 3);
+      };
+      const milliseconds = String(currentDate.getMilliseconds()).slice(0, 3);
+      const [formattedDateOnly, formattedTimeOnly] = formattedDate
+        .split(' ')
+        .map(part => part.split(/[-:]/));
+      const ModifiedUniqueString = `${formattedDateOnly[0]}${
+        formattedDateOnly[1]
+      }${formattedDateOnly[2]}${formattedTimeOnly[0]}${formattedTimeOnly[1]}${
+        formattedTimeOnly[2]
+      }${manipulateNumber(milliseconds)}${PadNumberWithZeros(
+        selectedEmployee.id,
+      )}${selectedEmployee?.checkIn ? 2 : 1}`;
 
-    const data = {
-      api_call_for: selectedEmployee.checkIn ? 'checkout' : 'checkin',
-      employee_id: selectedEmployee.id,
-      add_date_flag: true,
-      attachment: {
-        name: currentDate.toString(),
-        type: 'binary',
-        datas: imageString,
-      },
-      last_sync_seq: ModifiedUniqueString,
-    };
+      const data = {
+        api_call_for: selectedEmployee.checkIn ? 'checkout' : 'checkin',
+        employee_id: selectedEmployee.id,
+        add_date_flag: true,
+        attachment: {
+          name: currentDate.toString(),
+          type: 'binary',
+          datas: imageString,
+        },
+        last_sync_seq: ModifiedUniqueString,
+        isPushed: 0,
+        createAt: new Date(),
+      };
+
+      const insert = await insertAttendanceRecord(data);
+      if (insert) {
+        await toggleEmployeeCheckIn(employeeId);
+        setImageString(null);
+        setSelectedEmployee(null);
+        showGlobalToast('Shift saved successfully', 'success');
+        GetTheListFromLocal();
+        setShowCameraPopup(false);
+      }
+    } catch (error) {
+      setImageString(null);
+      setSelectedEmployee(null);
+      showGlobalToast('Something went wrong while saving your shift.', 'error');
+      setShowCameraPopup(false);
+    }
   };
 
   return (

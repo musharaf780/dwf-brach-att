@@ -132,7 +132,7 @@ export const getAllEmployees = () => {
   });
 };
 
-export const toggleEmployeeCheckIn = id => {
+export const toggleEmployeeCheckIn = (id, bool) => {
   return new Promise((resolve, reject) => {
     if (!id) {
       console.log('❌ ID is required');

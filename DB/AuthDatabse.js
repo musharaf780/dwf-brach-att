@@ -1,6 +1,6 @@
 import SQLite from 'react-native-sqlite-storage';
 
-// db create
+
 const db = SQLite.openDatabase(
   {
     name: 'authsuccess.db',
