@@ -60,31 +60,22 @@ export const insertAttendanceRecord = data => {
             new Date().toISOString(),
           ],
           (_, result) => {
-            console.log('✅ Attendance record inserted successfully');
-            resolve({
-              success: true,
-              insertId: result.insertId,
-              message: 'Record stored locally',
-            });
+            console.log('✅ Insert attendance success:', result);
+            resolve(result);
           },
           (_, err) => {
-            console.log('❌ Insert attendance error: ' + err.message);
-            reject({
-              success: false,
-              message: err.message,
-            });
+            console.log('❌ Insert attendance error:', err.message);
+            reject(err);
           },
         );
       });
     } catch (err) {
       console.log('❌ JSON stringify error:', err);
-      reject({
-        success: false,
-        message: err.message,
-      });
+      reject(err);
     }
   });
 };
+
 export const getAllAttendanceRecords = (success, error) => {
   db.transaction(tx => {
     tx.executeSql(
@@ -113,7 +104,23 @@ export const getAllAttendanceRecords = (success, error) => {
   });
 };
 
-// Update isPushed flag after syncing
+export const getUnpushedRecordsCount = (success, error) => {
+  db.transaction(tx => {
+    tx.executeSql(
+      `SELECT COUNT(*) as total FROM attendance_records WHERE isPushed = 0;`,
+      [],
+      (_, result) => {
+        const count = result.rows.item(0).total;
+        success && success(count);
+      },
+      (_, err) => {
+        console.log('❌ Count query error: ' + err.message);
+        error && error(err);
+      },
+    );
+  });
+};
+
 export const markAsPushed = (id, success, error) => {
   db.transaction(tx => {
     tx.executeSql(

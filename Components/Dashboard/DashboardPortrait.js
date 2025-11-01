@@ -10,6 +10,7 @@ import {
   Platform,
   StatusBar,
   ActivityIndicator,
+  Button,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -28,11 +29,15 @@ import CameraPopupPortrail from './CameraPopup/CameraPopupPortrail';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import ImageResizer from 'react-native-image-resizer';
 import RNFS from 'react-native-fs';
-import { insertAttendanceRecord } from '../../DB/EmployeePendingShift';
+import {
+  insertAttendanceRecord,
+  getUnpushedRecordsCount,
+} from '../../DB/EmployeePendingShift';
 import { showGlobalToast } from '../ToastManager';
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
+  const [pendingCount, setPendingCounts] = useState(0);
 
   const [hasPermission, setHasPermission] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -74,7 +79,7 @@ const DashboardPortrait = props => {
 
   useEffect(() => {
     GetTheListFromLocal();
-  }, []);
+  }, [employeeList]);
 
   const SearchTile = () => (
     <View style={styles.searchContainer}>
@@ -167,13 +172,14 @@ const DashboardPortrait = props => {
       };
 
       const insert = await insertAttendanceRecord(data);
+
       if (insert) {
         await toggleEmployeeCheckIn(employeeId);
         setImageString(null);
         setSelectedEmployee(null);
         showGlobalToast('Shift saved successfully', 'success');
-        GetTheListFromLocal();
         setShowCameraPopup(false);
+        GetTheListFromLocal();
       }
     } catch (error) {
       setImageString(null);
@@ -182,6 +188,13 @@ const DashboardPortrait = props => {
       setShowCameraPopup(false);
     }
   };
+
+  useEffect(() => {
+    getUnpushedRecordsCount(
+      count => setPendingCounts(count),
+      err => setPendingCounts(0),
+    );
+  }, [employeeList]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -242,7 +255,7 @@ const DashboardPortrait = props => {
                 <Paragraph style={styles.statTitle} text={`Pending\nShift`} />
               </View>
               <View style={styles.statRight}>
-                <Paragraph style={styles.statValue} text={`30`} />
+                <Paragraph style={styles.statValue} text={`${pendingCount}`} />
               </View>
             </View>
 
