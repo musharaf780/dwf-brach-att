@@ -83,14 +83,29 @@ export const getAllAttendanceRecords = (success, error) => {
       [],
       (_, result) => {
         const records = [];
+
         for (let i = 0; i < result.rows.length; i++) {
           const row = result.rows.item(i);
+
           try {
-            // Convert attachment back into object
             row.attachment = JSON.parse(row.attachment);
           } catch {
             row.attachment = {};
           }
+
+          // ✅ Add static flag
+          row.add_date_flag = true;
+
+          // ✅ Format loc_date: remove 'T' and 'Z'
+          if (row.loc_date) {
+            if (row.loc_date) {
+              row.loc_date = row.loc_date
+                .replace('T', ' ')
+                .replace('Z', '')
+                .split('.')[0];
+            }
+          }
+
           records.push(row);
         }
 

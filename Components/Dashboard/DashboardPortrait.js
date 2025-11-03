@@ -10,7 +10,8 @@ import {
   Platform,
   StatusBar,
   ActivityIndicator,
-  Button,
+  openSettings,
+  Linking,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -19,7 +20,7 @@ import {
 import { ThemeColors } from '../../Constants/Color';
 import IoIcon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { Data } from '../../Constants/Data';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import EmployeeTile from '../EmployeeTile';
 import Paragraph from '../Paragraph';
 import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
@@ -62,22 +63,13 @@ const DashboardPortrait = props => {
     dispatch(EmployeeDataAction.GetAllEmployeeFromLocalDB());
   };
 
-  const handleItemClick = async item => {
-    setSelectedEmployee(item);
-    setShowCameraPopup(true);
-    // const success = await toggleEmployeeCheckIn(id);
-    // if (success) {
-    //   GetTheListFromLocal();
-    // }
-  };
-
-  useEffect(() => {
-    const getPermissions = async () => {
-      const granted = await askCameraPermission();
-      setHasPermission(granted);
-    };
-    getPermissions();
-  }, []);
+  // useEffect(() => {
+  //   const getPermissions = async () => {
+  //     const granted = await askCameraPermission();
+  //     setHasPermission(granted);
+  //   };
+  //   getPermissions();
+  // }, []);
 
   useEffect(() => {
     GetTheListFromLocal();
@@ -162,6 +154,7 @@ const DashboardPortrait = props => {
       const [formattedDateOnly, formattedTimeOnly] = formattedDate
         .split(' ')
         .map(part => part.split(/[-:]/));
+
       const ModifiedUniqueString = `${formattedDateOnly[0]}${
         formattedDateOnly[1]
       }${formattedDateOnly[2]}${formattedTimeOnly[0]}${formattedTimeOnly[1]}${
@@ -214,6 +207,80 @@ const DashboardPortrait = props => {
       err => setPendingCounts(0),
     );
   }, [employeeList]);
+
+  const askCameraPermission = async item => {
+    let permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.CAMERA
+        : PERMISSIONS.ANDROID.CAMERA;
+
+    const status = await check(permission);
+
+    if (status === RESULTS.GRANTED) {
+      console.log('Camera permission already granted');
+      setSelectedEmployee(item);
+      setShowCameraPopup(true);
+      ShowToast('success', 'Camera', 'Camera permission already granted');
+    } else {
+      const result = await request(permission);
+      if (result === RESULTS.GRANTED) {
+        setSelectedEmployee(item);
+        setShowCameraPopup(true);
+        ShowToast(
+          'success',
+          'Camera',
+          'Camera permission granted successfully',
+        );
+      } else if (result === RESULTS.BLOCKED) {
+        ShowToast(
+          'error',
+          'Camera',
+          'Camera permission is blocked. Please enable it from settings.',
+          openAppSettings(),
+        );
+      } else {
+        ShowToast('error', 'Camera', 'Camera permission not granted');
+      }
+    }
+  };
+
+  const CheckCameraPermission = async item => {
+    let permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.CAMERA
+        : PERMISSIONS.ANDROID.CAMERA;
+
+    const status = await check(permission);
+
+    if (status === RESULTS.GRANTED) {
+      setSelectedEmployee(item);
+      setShowCameraPopup(true);
+      ShowToast('success', 'Camera', 'Camera permission already granted');
+    } else {
+      await askCameraPermission(item);
+    }
+  };
+
+  const openAppSettings = async () => {
+    try {
+      await openSettings();
+    } catch (error) {
+      // Fallback in case openSettings() fails on some devices
+      Linking.openSettings().catch(() => {
+        console.warn('Unable to open app settings');
+      });
+    }
+  };
+
+  const handleItemClick = async item => {
+    await CheckCameraPermission(item);
+  };
+
+  const PushRecordToServer = () => {
+    console.log(loginSuccess.access_token)
+    const Data = getAllAttendanceRecords();
+    console.log(JSON.stringify(Data));
+  };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -332,7 +399,7 @@ const DashboardPortrait = props => {
           </View>
 
           {/* Bottom Bar */}
-          <TouchableOpacity style={styles.bottomBar}>
+          <TouchableOpacity onPress={PushRecordToServer} style={styles.bottomBar}>
             <MaterialIcons
               name="fact-check"
               color={ThemeColors.secondary}
