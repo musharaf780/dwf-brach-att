@@ -26,27 +26,27 @@ const App = () => {
 
   const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
 
-  useEffect(() => {
-    const { width, height } = Dimensions.get('window');
-    const aspectRatio = height / width;
+  // useEffect(() => {
+  //   const { width, height } = Dimensions.get('window');
+  //   const aspectRatio = height / width;
 
-    if (aspectRatio < 1.6) {
-      Orientation.lockToLandscape();
-    } else {
-      Orientation.lockToPortrait();
-    }
+  //   if (aspectRatio < 1.6) {
+  //     Orientation.lockToLandscape();
+  //   } else {
+  //     Orientation.lockToPortrait();
+  //   }
 
-    const subscription = Dimensions.addEventListener('change', ({ window }) => {
-      const newAspect = window.height / window.width;
-      if (newAspect < 1.6) {
-        Orientation.lockToLandscape();
-      } else {
-        Orientation.lockToPortrait();
-      }
-    });
+  //   const subscription = Dimensions.addEventListener('change', ({ window }) => {
+  //     const newAspect = window.height / window.width;
+  //     if (newAspect < 1.6) {
+  //       Orientation.lockToLandscape();
+  //     } else {
+  //       Orientation.lockToPortrait();
+  //     }
+  //   });
 
-    return () => subscription?.remove();
-  }, []);
+  //   return () => subscription?.remove();
+  // }, []);
 
   useEffect(() => {
     const init = async () => {

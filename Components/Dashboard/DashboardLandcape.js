@@ -1,13 +1,16 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
   View,
   StyleSheet,
   TextInput,
   ScrollView,
+  SafeAreaView,
   TouchableOpacity,
   Image,
+  Platform,
+  StatusBar,
   ActivityIndicator,
-  Alert,
+  Button,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -17,17 +20,81 @@ import { ThemeColors } from '../../Constants/Color';
 import IoIcon from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Data } from '../../Constants/Data';
+import EmployyeTileLandscape from '../../Components/EmployyeTileLandscape';
 import Paragraph from '../Paragraph';
-import EmployyeTileLandscape from '../EmployyeTileLandscape';
 import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
+import { Camera, useCameraDevice } from 'react-native-vision-camera';
+import ImageResizer from 'react-native-image-resizer';
+import Orientation from 'react-native-orientation-locker';
+import RNFS from 'react-native-fs';
+import {
+  insertAttendanceRecord,
+  getUnpushedRecordsCount,
+  getAllAttendanceRecords,
+} from '../../DB/EmployeePendingShift';
+import { showGlobalToast } from '../ToastManager';
+import CameraPopupLandscape from './CameraPopup/CameraPopupLandscape';
 const DashboardLandcape = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
+  const [pendingCount, setPendingCounts] = useState(0);
+  const isProcessingRef = useRef(false);
+  const [hasPermission, setHasPermission] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [imageString, setImageString] = useState(null);
+
+  const camera = useRef(null);
+  const isCapturingRef = useRef(false);
+  const [showCameraPopup, setShowCameraPopup] = useState(false);
+
+  const deviceFront = useCameraDevice('front');
+
+  const dispatch = useDispatch();
+
+  const SyncEmployeeList = () => {
+    dispatch(
+      EmployeeDataAction.EmployeeListDataAction(loginSuccess.access_token),
+    );
+  };
+
+  const GetTheListFromLocal = () => {
+    dispatch(EmployeeDataAction.GetAllEmployeeFromLocalDB());
+  };
+
+  const handleItemClick = async item => {
+    setSelectedEmployee(item);
+    setShowCameraPopup(true);
+    // const success = await toggleEmployeeCheckIn(id);
+    // if (success) {
+    //   GetTheListFromLocal();
+    // }
+  };
+
+  useEffect(() => {
+    const getPermissions = async () => {
+      const granted = await askCameraPermission();
+      setHasPermission(granted);
+    };
+    getPermissions();
+  }, []);
+
+  useEffect(() => {
+    GetTheListFromLocal();
+  }, [employeeList]);
 
   const SearchTile = () => (
-    <View style={styles.searchTileContainer}>
+    <View
+      style={{
+        backgroundColor: ThemeColors.white,
+        width: '90%',
+        flexDirection: 'row',
+        paddingHorizontal: hp('2%'),
+        borderRadius: hp('1%'),
+        fontSize: hp('3%'),
+      }}
+    >
       <TextInput
         placeholder="Search"
         placeholderTextColor={ThemeColors.light}
@@ -42,29 +109,119 @@ const DashboardLandcape = props => {
       </TouchableOpacity>
     </View>
   );
-  const dispatch = useDispatch();
 
-  const SyncEmployeeList = () => {
-    dispatch(
-      EmployeeDataAction.EmployeeListDataAction(loginSuccess.access_token),
-    );
-  };
+  const capturePhoto = async () => {
+    if (isCapturingRef.current) return;
+    isCapturingRef.current = true;
 
-  const GetTheListFromLocal = () => {
-    dispatch(EmployeeDataAction.GetAllEmployeeFromLocalDB());
-  };
-
-  const handleItemClick = async id => {
-    const success = await toggleEmployeeCheckIn(id);
-    if (success) {
-      GetTheListFromLocal();
+    if (camera.current == null) {
+      isCapturingRef.current = false;
+      return;
     }
-    // toggleEmployeeCheckIn(id);
+
+    try {
+      const photo = await camera.current.takePhoto({
+        flash: 'off',
+      });
+
+      const compressed = await ImageResizer.createResizedImage(
+        photo.path,
+        400,
+        400,
+        'JPEG',
+        20,
+        -90, // rotation (keep 0 to respect EXIF)
+        undefined, // outputPath
+        false, // keepExif (true in some versions)
+        {
+          mode: 'contain',
+          onlyScaleDown: false,
+          compressFormat: 'JPEG',
+          keepMeta: true,
+        },
+      );
+      const base64 = await RNFS.readFile(compressed.path, 'base64');
+
+      console.log('🧩 Short Base64 Preview:', JSON.stringify());
+      setImageString(base64);
+    } catch (error) {
+      console.log('Error capturing photo:', error);
+    } finally {
+      isCapturingRef.current = false;
+    }
+  };
+
+  const ProceedHandler = async () => {
+    if (isProcessingRef.current) return;
+    isProcessingRef.current = true;
+    try {
+      let employeeId = selectedEmployee.id;
+      const currentDate = new Date();
+      const utcDate = new Date(currentDate.toUTCString());
+      const formattedDate = utcDate
+        .toISOString()
+        .slice(0, 19)
+        .replace('T', ' ');
+      const PadNumberWithZeros = num => String(num).padStart(6, '0');
+
+      const manipulateNumber = num => {
+        const numStr = String(num);
+        return numStr.length < 3 ? numStr.padEnd(3, '0') : numStr.slice(0, 3);
+      };
+      const milliseconds = String(currentDate.getMilliseconds()).slice(0, 3);
+      const [formattedDateOnly, formattedTimeOnly] = formattedDate
+        .split(' ')
+        .map(part => part.split(/[-:]/));
+      const ModifiedUniqueString = `${formattedDateOnly[0]}${
+        formattedDateOnly[1]
+      }${formattedDateOnly[2]}${formattedTimeOnly[0]}${formattedTimeOnly[1]}${
+        formattedTimeOnly[2]
+      }${manipulateNumber(milliseconds)}${PadNumberWithZeros(
+        selectedEmployee.id,
+      )}${selectedEmployee?.checkIn ? 2 : 1}`;
+
+      const data = {
+        api_call_for: selectedEmployee.checkIn ? 'checkout' : 'checkin',
+        employee_id: selectedEmployee.id,
+        add_date_flag: true,
+        attachment: {
+          name: currentDate.toString(),
+          type: 'binary',
+          datas: imageString,
+        },
+        last_sync_seq: ModifiedUniqueString,
+        isPushed: 0,
+        createAt: new Date(),
+      };
+
+      const insert = await insertAttendanceRecord(data);
+
+      if (insert) {
+        await toggleEmployeeCheckIn(employeeId);
+        setImageString(null);
+        setSelectedEmployee(null);
+        showGlobalToast('Shift saved successfully', 'success');
+        setShowCameraPopup(false);
+        GetTheListFromLocal();
+      }
+    } catch (error) {
+      setImageString(null);
+      setSelectedEmployee(null);
+      showGlobalToast('Something went wrong while saving your shift.', 'error');
+      setShowCameraPopup(false);
+    } finally {
+      isProcessingRef.current = false; // 🔓 unlock instantly
+    }
   };
 
   useEffect(() => {
-    GetTheListFromLocal();
-  }, []);
+    getUnpushedRecordsCount(
+      count => setPendingCounts(count),
+      err => setPendingCounts(0),
+    );
+  }, [employeeList]);
+
+  const [uiRotation, setUiRotation] = useState(90);
 
   return (
     <View style={styles.mainContainer}>
@@ -82,7 +239,7 @@ const DashboardLandcape = props => {
         <View style={styles.statsContainer}>
           <View style={styles.statBox}>
             <Paragraph style={styles.statPendingTitle} text="Pending Shift" />
-            <Paragraph style={styles.statPendingValue} text="10" />
+            <Paragraph style={styles.statPendingValue} text={pendingCount} />
           </View>
 
           {/* Pushed Shift */}
@@ -169,6 +326,60 @@ const DashboardLandcape = props => {
           </>
         )}
       </View>
+
+      <CameraPopupLandscape
+        loading={isProcessingRef.current}
+        onProceed={ProceedHandler}
+        visible={showCameraPopup}
+        imageHave={imageString}
+        onCapture={capturePhoto}
+        onRetake={() => setImageString(null)}
+        onClose={() => {
+          setImageString(null);
+          setShowCameraPopup(false);
+        }}
+      >
+        <View
+          style={{
+            width: '100%',
+            alignItems: 'center',
+            justifyContent: 'center',
+            aspectRatio: 4 / 3, // keep consistent shape
+          }}
+        >
+          {imageString ? (
+            <Image
+              style={{
+                width: '80%',
+                height: '100%',
+                borderRadius: 10,
+                resizeMode: 'cover', // match camera view behavior
+              }}
+              source={{ uri: `data:image/jpeg;base64,${imageString}` }}
+            />
+          ) : (
+            <View
+              style={{
+                width: '80%',
+                height: '100%',
+                borderRadius: 10,
+                overflow: 'hidden',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Camera
+                ref={camera}
+                style={{ width: '100%', height: '100%' }}
+                device={deviceFront}
+                isActive={showCameraPopup}
+                photo={true}
+                onUIRotationChanged={setUiRotation}
+              />
+            </View>
+          )}
+        </View>
+      </CameraPopupLandscape>
     </View>
   );
 };
@@ -298,7 +509,7 @@ const styles = StyleSheet.create({
   searchInput: {
     flex: 1,
     color: ThemeColors.black,
-    fontSize: hp('1.6%'),
+    fontSize: hp('2'),
   },
   searchIcon: {
     justifyContent: 'center',

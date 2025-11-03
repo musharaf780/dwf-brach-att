@@ -25,7 +25,7 @@ const EmployyeTileLandscape = ({ items, onItemClick }) => {
         <Paragraph style={styles.dateText} text={''} />
 
         <TouchableOpacity
-          onPress={() => onItemClick(items.id)}
+          onPress={() => onItemClick(items)}
           activeOpacity={0.8}
           style={[
             styles.button,
