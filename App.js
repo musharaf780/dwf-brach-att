@@ -7,8 +7,7 @@ import { initAuthDB } from './DB/AuthDatabse';
 import { initEmployeeDB } from './DB/EmployeeList';
 import { initEmployeePendingShiftDB } from './DB/EmployeePendingShift';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
-import { Dimensions } from 'react-native';
-import Orientation from 'react-native-orientation-locker';
+import Toast from 'react-native-toast-message';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk';
@@ -63,9 +62,8 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <ToastProvider>
-        <MainNavigator />
-      </ToastProvider>
+      <MainNavigator />
+      <Toast />
     </Provider>
   );
 };

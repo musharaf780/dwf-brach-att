@@ -21,8 +21,8 @@ import AuthButton from '../AuthButton';
 import { ThemeColors } from '../../Constants/Color';
 import * as AuthAction from '../../Store /Actions/AuthAction';
 import { useDispatch, useSelector } from 'react-redux';
-import { getAuthData } from '../../DB/AuthDatabse';
-import { showGlobalToast } from '../ToastManager';
+
+import { ShowToast } from '../ShowToast';
 const LoginScreenLandscape = props => {
   const { loader, loginSuccess, loginFail } = useSelector(state => state.auth);
   const [secure, setSecure] = useState(false);
@@ -34,9 +34,9 @@ const LoginScreenLandscape = props => {
 
   const LoginHandler = () => {
     if (formfields.email === '') {
-      showGlobalToast('Email is required', 'error');
+      ShowToast('error', 'Email Validation', 'Email Address is required');
     } else if (formfields.password === '') {
-      showGlobalToast('Password is required', 'error');
+      ShowToast('error', 'Password Validation', 'Password Address is required');
     } else {
       dispatch(AuthAction.UserLoginAction(formfields));
     }
@@ -45,8 +45,12 @@ const LoginScreenLandscape = props => {
   useEffect(() => {
     if (loginSuccess) {
       props.navigate();
-    }else if(loginFail){
-      showGlobalToast('Oops! Something went wrong', 'error');
+    } else if (loginFail) {
+      ShowToast(
+        'error',
+        'Credentials Error',
+        'Oops! Something went wrong, please check your credentials',
+      );
     }
   }, [loginSuccess, loginFail]);
 

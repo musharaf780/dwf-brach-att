@@ -34,8 +34,8 @@ import {
   getUnpushedRecordsCount,
   getAllAttendanceRecords,
 } from '../../DB/EmployeePendingShift';
-import { showGlobalToast } from '../ToastManager';
 import CameraPopupLandscape from './CameraPopup/CameraPopupLandscape';
+import { ShowToast } from '../ShowToast';
 const DashboardLandcape = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
@@ -200,14 +200,18 @@ const DashboardLandcape = props => {
         await toggleEmployeeCheckIn(employeeId);
         setImageString(null);
         setSelectedEmployee(null);
-        showGlobalToast('Shift saved successfully', 'success');
+        ShowToast('success', 'Attendance session', 'Shift saved successfully');
         setShowCameraPopup(false);
         GetTheListFromLocal();
       }
     } catch (error) {
       setImageString(null);
       setSelectedEmployee(null);
-      showGlobalToast('Something went wrong while saving your shift.', 'error');
+      ShowToast(
+        'error',
+        'Attandence session',
+        'Something went wrong while saving your shift',
+      );
       setShowCameraPopup(false);
     } finally {
       isProcessingRef.current = false; // 🔓 unlock instantly

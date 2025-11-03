@@ -80,7 +80,7 @@ const CameraPopupLandscape = ({
             <TouchableOpacity
               disabled={loading}
               onPress={onClose}
-              style={{ marginTop: hp('1%'),paddingHorizontal:'30' }}
+              style={{ marginTop: hp('1%'), paddingHorizontal: '30' }}
             >
               <Paragraph
                 style={{
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   modalContainer: {
-    height: hp('75%'),
+    height: hp('80%'),
     width: wp('40%'),
     backgroundColor: ThemeColors.secondary,
     borderRadius: wp('5%'),

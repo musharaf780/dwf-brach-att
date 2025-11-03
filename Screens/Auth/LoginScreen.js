@@ -6,6 +6,7 @@ import { useSelector } from 'react-redux';
 import { Alert, Platform } from 'react-native';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { showGlobalToast } from '../../Components/ToastManager';
+import { ShowToast } from '../../Components/ShowToast';
 const LoginScreen = props => {
   const { isTablet } = useSelector(state => state.auth);
 
@@ -22,9 +23,19 @@ const LoginScreen = props => {
     } else {
       const result = await request(permission);
       if (result === RESULTS.GRANTED) {
-        showGlobalToast('Camera permission granted!', 'success');
+        // showGlobalToast('Camera permission granted!', 'success');
+        ShowToast(
+          'success',
+          'Camera',
+          'Camera permission granted successfully',
+        );
       } else {
         showGlobalToast('Camera permission not granted!', 'error');
+        ShowToast(
+          'error',
+          'Camera',
+          'Camera permission not granted successfully',
+        );
       }
     }
   };
@@ -36,9 +47,9 @@ const LoginScreen = props => {
         : PERMISSIONS.ANDROID.CAMERA;
     const status = await check(permission);
     if (status === RESULTS.GRANTED) {
-      showGlobalToast('Camera permission already granted', 'success');
+      ShowToast('success', 'Camera', 'Camera permission already granted');
     } else {
-      showGlobalToast('Camera permission not granted!', 'error');
+      ShowToast('error', 'Camera', 'Camera permission not granted!');
     }
   };
 
