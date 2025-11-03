@@ -21,7 +21,6 @@ import AuthButton from '../AuthButton';
 import { ThemeColors } from '../../Constants/Color';
 import * as AuthAction from '../../Store /Actions/AuthAction';
 import { useDispatch, useSelector } from 'react-redux';
-
 import { ShowToast } from '../ShowToast';
 const LoginScreenLandscape = props => {
   const { loader, loginSuccess, loginFail } = useSelector(state => state.auth);

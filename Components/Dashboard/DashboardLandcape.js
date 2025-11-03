@@ -256,7 +256,17 @@ const DashboardLandcape = props => {
         {/* Sync + Logout */}
         <View style={styles.footerButtonsContainer}>
           <TouchableOpacity
-            onPress={SyncEmployeeList}
+            onPress={() => {
+              if (pendingCount === 0) {
+                SyncEmployeeList();
+              } else {
+                ShowToast(
+                  'error',
+                  'Session Validation',
+                  'You need to push all your existing sessions before syncing the employee list.',
+                );
+              }
+            }}
             style={styles.footerButton}
           >
             <MaterialIcons

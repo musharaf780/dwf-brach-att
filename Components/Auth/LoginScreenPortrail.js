@@ -22,6 +22,7 @@ import { ThemeColors } from '../../Constants/Color';
 import * as AuthAction from '../../Store /Actions/AuthAction';
 import { useDispatch, useSelector } from 'react-redux';
 import { showGlobalToast } from '../ToastManager';
+import { ShowToast } from '../ShowToast';
 
 const LoginScreenPortrail = props => {
   const { loader, loginSuccess, loginFail } = useSelector(state => state.auth);
@@ -34,9 +35,9 @@ const LoginScreenPortrail = props => {
 
   const LoginHandler = () => {
     if (formfields.email === '') {
-      showGlobalToast('Email is required', 'error');
+      ShowToast('error', 'Email Validation', 'Email Address is required');
     } else if (formfields.password === '') {
-      showGlobalToast('Password is required', 'error');
+      ShowToast('error', 'Password Validation', 'Password Address is required');
     } else {
       dispatch(AuthAction.UserLoginAction(formfields));
     }
@@ -46,7 +47,11 @@ const LoginScreenPortrail = props => {
     if (loginSuccess) {
       props.navigate();
     } else if (loginFail) {
-      showGlobalToast('Oops! Something went wrong', 'error');
+      ShowToast(
+        'error',
+        'Credentials Error',
+        'Oops! Something went wrong, please check your credentials',
+      );
     }
   }, [loginSuccess, loginFail]);
 
