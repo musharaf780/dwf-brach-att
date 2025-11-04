@@ -3,7 +3,7 @@ import PortraitLayout from '../../Components/Splash/PortraitLayout';
 import LandscapeLayout from '../../Components/Splash/LandscapeLayout';
 import { useSelector, useDispatch } from 'react-redux';
 import { getAuthData } from '../../DB/AuthDatabse';
-import * as AuthAction from '../../Store /Actions/AuthAction';
+import * as AuthAction from '../../Store/Actions/AuthAction';
 const SplashScreen = props => {
   const { isTablet, loginSuccess } = useSelector(state => state.auth);
 

@@ -19,7 +19,7 @@ import AIcon from 'react-native-vector-icons/EvilIcons';
 import IoIcon from 'react-native-vector-icons/Ionicons';
 import AuthButton from '../AuthButton';
 import { ThemeColors } from '../../Constants/Color';
-import * as AuthAction from '../../Store /Actions/AuthAction';
+import * as AuthAction from '../../Store/Actions/AuthAction';
 import { useDispatch, useSelector } from 'react-redux';
 import { showGlobalToast } from '../ToastManager';
 import { ShowToast } from '../ShowToast';

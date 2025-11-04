@@ -22,7 +22,7 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Data } from '../../Constants/Data';
 import EmployyeTileLandscape from '../../Components/EmployyeTileLandscape';
 import Paragraph from '../Paragraph';
-import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
+import * as EmployeeDataAction from '../../Store/Actions/EmployeeDataAction';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';

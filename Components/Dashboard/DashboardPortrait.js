@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   openSettings,
   Linking,
+  AppState,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -23,12 +24,13 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import EmployeeTile from '../EmployeeTile';
 import Paragraph from '../Paragraph';
-import * as EmployeeDataAction from '../../Store /Actions/EmployeeDataAction';
+import * as EmployeeDataAction from '../../Store/Actions/EmployeeDataAction';
 import { useDispatch, useSelector } from 'react-redux';
 import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
 import CameraPopupPortrail from './CameraPopup/CameraPopupPortrail';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import ImageResizer from 'react-native-image-resizer';
+import { useFocusEffect } from '@react-navigation/native';
 import RNFS from 'react-native-fs';
 import {
   insertAttendanceRecord,
@@ -52,7 +54,7 @@ const DashboardPortrait = props => {
   const isProcessingRef = useRef(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [imageString, setImageString] = useState(null);
-
+  const appState = React.useRef(AppState.currentState);
   const camera = useRef(null);
   const isCapturingRef = useRef(false);
   const [showCameraPopup, setShowCameraPopup] = useState(false);
@@ -124,7 +126,6 @@ const DashboardPortrait = props => {
       );
       const base64 = await RNFS.readFile(compressed.path, 'base64');
 
-      console.log('🧩 Short Base64 Preview:', JSON.stringify());
       setImageString(base64);
     } catch (error) {
       console.log('Error capturing photo:', error);
@@ -222,7 +223,6 @@ const DashboardPortrait = props => {
     const status = await check(permission);
 
     if (status === RESULTS.GRANTED) {
-      console.log('Camera permission already granted');
       setSelectedEmployee(item);
       setShowCameraPopup(true);
       ShowToast('success', 'Camera', 'Camera permission already granted');
@@ -317,14 +317,14 @@ const DashboardPortrait = props => {
       );
   };
 
-  const PushRecordToServer = async () => {
+  const PushRecordToServer = async loader => {
     try {
       const Data = await getAllAttendanceRecords();
       dispatch(
         EmployeeDataAction.PendingShiftPostToServerAction(
           loginSuccess.access_token,
           Data,
-          true,
+          loader,
         ),
       );
     } catch (err) {
@@ -333,10 +333,6 @@ const DashboardPortrait = props => {
   };
 
   useEffect(() => {
-    console.log(
-      pendingShiftPostToServerStatus,
-      'pendingShiftPostToServerStatus',
-    );
     if (pendingShiftPostToServerStatus) {
       ShowToast(
         pendingShiftPostToServerStatus?.type,
@@ -345,6 +341,24 @@ const DashboardPortrait = props => {
       );
     }
   }, [pendingLoader]);
+
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = AppState.addEventListener('change', nextAppState => {
+        if (
+          appState.current.match(/inactive|background/) &&
+          nextAppState === 'active'
+        ) {
+          PushRecordToServer(false);
+        }
+        appState.current = nextAppState;
+      });
+
+      return () => {
+        subscription.remove();
+      };
+    }, []),
+  );
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -461,9 +475,10 @@ const DashboardPortrait = props => {
             )}
           </View>
 
-          {/* Bottom Bar */}
           <TouchableOpacity
-            onPress={PushRecordToServer}
+            onPress={() => {
+              PushRecordToServer(true);
+            }}
             style={styles.bottomBar}
           >
             <MaterialIcons
@@ -487,7 +502,7 @@ const DashboardPortrait = props => {
         onRetake={() => setImageString(null)}
         onClose={() => {
           setImageString(null);
-          setShowCameraPopup(false);
+          setTimeout(() => setShowCameraPopup(false), 300);
         }}
       >
         <View
