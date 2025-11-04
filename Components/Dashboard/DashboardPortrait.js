@@ -36,6 +36,7 @@ import {
   getAllAttendanceRecords,
 } from '../../DB/EmployeePendingShift';
 import { ShowToast } from '../ShowToast';
+import ApiConstants from '../../Constants/ApiConstants';
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
@@ -62,14 +63,6 @@ const DashboardPortrait = props => {
   const GetTheListFromLocal = () => {
     dispatch(EmployeeDataAction.GetAllEmployeeFromLocalDB());
   };
-
-  // useEffect(() => {
-  //   const getPermissions = async () => {
-  //     const granted = await askCameraPermission();
-  //     setHasPermission(granted);
-  //   };
-  //   getPermissions();
-  // }, []);
 
   useEffect(() => {
     GetTheListFromLocal();
@@ -276,10 +269,47 @@ const DashboardPortrait = props => {
     await CheckCameraPermission(item);
   };
 
+  const CheckPendingValidation = () => {
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
+
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+    };
+
+    fetch(
+      `${ApiConstants.BaseUrl}/geoloc_att/off_att_push/check_sync`,
+      requestOptions,
+    )
+      .then(response => response.json())
+      .then(result => {
+        if (result.status === 200) {
+          const { pending_records } = result;
+          if (pending_records.length === 0) {
+            SyncEmployeeList();
+          } else {
+            ShowToast(
+              'error',
+              'Session Validation',
+              'You need to push all your existing sessions before syncing the employee list.',
+            );
+          }
+        } else {
+          ShowToast('error', 'Error', 'Oops! Something went wrong.');
+        }
+      })
+      .catch(error =>
+        console.error('Error checking pending validation:', error),
+      );
+  };
+
   const PushRecordToServer = () => {
-    console.log(loginSuccess.access_token)
-    const Data = getAllAttendanceRecords();
-    console.log(JSON.stringify(Data));
+    // CheckPendingValidation();
+    // console.log(loginSuccess.access_token);
+    // const Data = getAllAttendanceRecords();
+    // console.log(JSON.stringify(Data));
   };
 
   return (
@@ -310,12 +340,11 @@ const DashboardPortrait = props => {
               </View>
             </View>
 
-            {/* Action Icons */}
             <View style={styles.iconContainer}>
               <TouchableOpacity
                 onPress={() => {
                   if (pendingCount === 0) {
-                    SyncEmployeeList();
+                    CheckPendingValidation();
                   } else {
                     ShowToast(
                       'error',
@@ -399,7 +428,10 @@ const DashboardPortrait = props => {
           </View>
 
           {/* Bottom Bar */}
-          <TouchableOpacity onPress={PushRecordToServer} style={styles.bottomBar}>
+          <TouchableOpacity
+            onPress={PushRecordToServer}
+            style={styles.bottomBar}
+          >
             <MaterialIcons
               name="fact-check"
               color={ThemeColors.secondary}

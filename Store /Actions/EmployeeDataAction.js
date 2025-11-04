@@ -1,6 +1,9 @@
 import ApiConstants from '../../Constants/ApiConstants';
 import { insertEmployeeList, getAllEmployees } from '../../DB/EmployeeList';
-import { EmployeeListDataActionConst } from '../Constants/EmployeeDataConst';
+import {
+  EmployeeListDataActionConst,
+  PendingShiftPostToServerActionConst,
+} from '../Constants/EmployeeDataConst';
 
 export const GetAllEmployeeFromLocalDB = () => {
   return async dispatch => {
@@ -48,10 +51,6 @@ export const EmployeeListDataAction = token => {
             list[i]['checkIn'] = 0;
           }
         }
-        // const data = result.sub_employees.map(emp => ({
-        //   ...emp,
-        //   checkIn: !!emp.is_geosess_active,
-        // }));
 
         insertEmployeeList(list);
         await dispatch(GetAllEmployeeFromLocalDB());
@@ -69,5 +68,36 @@ export const EmployeeListDataAction = token => {
           'Something went wrong while loading employees. Please check your connection.',
       });
     }
+  };
+};
+
+export const PendingShiftPostToServerAction = (token, data) => {
+  return async dispatch => {
+    dispatch({
+      type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_REQ,
+    });
+
+    const myHeaders = new Headers();
+    myHeaders.append('Content-Type', 'application/json');
+    myHeaders.append('Authorization', `Bearer ${token}`);
+
+    const raw = JSON.stringify({
+      off_att_vals: data,
+    });
+
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow',
+    };
+
+    fetch(
+      `${ApiConstants.BaseUrl}/geoloc_att/push_offline_attendance_new`,
+      requestOptions,
+    )
+      .then(response => response.json())
+      .then(result => console.log(result))
+      .catch(error => console.error(error));
   };
 };

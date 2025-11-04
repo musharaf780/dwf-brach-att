@@ -4,6 +4,7 @@ const initialState = {
   loading: false,
   employeeList: [],
   employeeListError: null,
+  
 };
 
 export default (state = initialState, action) => {
