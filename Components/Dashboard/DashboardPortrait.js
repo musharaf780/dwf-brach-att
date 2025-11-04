@@ -41,6 +41,7 @@ import { getPushedRecordsCount } from '../../DB/EmployeePushedShifts';
 import { ShowToast } from '../ShowToast';
 import ApiConstants from '../../Constants/ApiConstants';
 import PushRecordsToServerModal from '../PushRecordsToServerModal';
+
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const {
@@ -114,9 +115,9 @@ const DashboardPortrait = props => {
         400,
         'JPEG',
         20,
-        -90, 
-        undefined, 
-        false, 
+        -90,
+        undefined,
+        false,
         {
           mode: 'contain',
           onlyScaleDown: false,
@@ -280,6 +281,7 @@ const DashboardPortrait = props => {
   const handleItemClick = async item => {
     await CheckCameraPermission(item);
   };
+  
 
   const CheckPendingValidation = () => {
     const myHeaders = new Headers();

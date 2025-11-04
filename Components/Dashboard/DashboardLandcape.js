@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useCallback } from 'react';
 import {
   View,
   StyleSheet,
@@ -7,10 +7,8 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Image,
-  Platform,
-  StatusBar,
   ActivityIndicator,
-  Button,
+  AppState,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -27,7 +25,9 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import ImageResizer from 'react-native-image-resizer';
-import Orientation from 'react-native-orientation-locker';
+import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import { useFocusEffect } from '@react-navigation/native';
+import { getPushedRecordsCount } from '../../DB/EmployeePushedShifts';
 import RNFS from 'react-native-fs';
 import {
   insertAttendanceRecord,
@@ -36,15 +36,23 @@ import {
 } from '../../DB/EmployeePendingShift';
 import CameraPopupLandscape from './CameraPopup/CameraPopupLandscape';
 import { ShowToast } from '../ShowToast';
+import PushRecordsToServerModal from '../PushRecordsToServerModal';
+import ApiConstants from '../../Constants/ApiConstants';
 const DashboardLandcape = props => {
   const { loginSuccess } = useSelector(state => state.auth);
-  const { loading, employeeList } = useSelector(state => state.employee);
+  const {
+    loading,
+    employeeList,
+    pendingLoader,
+    pendingShiftPostToServerStatus,
+  } = useSelector(state => state.employee);
   const [pendingCount, setPendingCounts] = useState(0);
+  const [pushedCount, setPushedCounts] = useState(0);
   const isProcessingRef = useRef(false);
   const [hasPermission, setHasPermission] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [imageString, setImageString] = useState(null);
-
+  const appState = React.useRef(AppState.currentState);
   const camera = useRef(null);
   const isCapturingRef = useRef(false);
   const [showCameraPopup, setShowCameraPopup] = useState(false);
@@ -63,13 +71,58 @@ const DashboardLandcape = props => {
     dispatch(EmployeeDataAction.GetAllEmployeeFromLocalDB());
   };
 
+  const askCameraPermission = async item => {
+    let permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.CAMERA
+        : PERMISSIONS.ANDROID.CAMERA;
+
+    const status = await check(permission);
+
+    if (status === RESULTS.GRANTED) {
+      setSelectedEmployee(item);
+      // setShowCameraPopup(true);
+    } else {
+      const result = await request(permission);
+      if (result === RESULTS.GRANTED) {
+        // setShowCameraPopup(true);
+        ShowToast(
+          'success',
+          'Camera',
+          'Camera permission granted successfully',
+        );
+      } else if (result === RESULTS.BLOCKED) {
+        ShowToast(
+          'error',
+          'Camera',
+          'Camera permission is blocked. Please enable it from settings.',
+          openAppSettings(),
+        );
+      } else {
+        ShowToast('error', 'Camera', 'Camera permission not granted');
+      }
+    }
+  };
+
+  const CheckCameraPermission = async item => {
+    let permission =
+      Platform.OS === 'ios'
+        ? PERMISSIONS.IOS.CAMERA
+        : PERMISSIONS.ANDROID.CAMERA;
+
+    const status = await check(permission);
+
+    if (status === RESULTS.GRANTED) {
+      setSelectedEmployee(item);
+      setShowCameraPopup(true);
+      ShowToast('success', 'Camera', 'Camera permission already granted');
+    } else {
+      await askCameraPermission(item);
+    }
+  };
+
   const handleItemClick = async item => {
-    setSelectedEmployee(item);
-    setShowCameraPopup(true);
-    // const success = await toggleEmployeeCheckIn(id);
-    // if (success) {
-    //   GetTheListFromLocal();
-    // }
+    await CheckCameraPermission(item);
   };
 
   useEffect(() => {
@@ -223,9 +276,84 @@ const DashboardLandcape = props => {
       count => setPendingCounts(count),
       err => setPendingCounts(0),
     );
+
+    getPushedRecordsCount(
+      count => setPushedCounts(count),
+      err => setPushedCounts(0),
+    );
   }, [employeeList]);
 
   const [uiRotation, setUiRotation] = useState(90);
+
+  const PushRecordToServer = async loader => {
+    try {
+      const Data = await getAllAttendanceRecords();
+      dispatch(
+        EmployeeDataAction.PendingShiftPostToServerAction(
+          loginSuccess.access_token,
+          Data,
+          loader,
+        ),
+      );
+    } catch (err) {
+      console.error('Error fetching attendance records:', err);
+    }
+  };
+
+  const CheckPendingValidation = () => {
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
+
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+    };
+
+    fetch(
+      `${ApiConstants.BaseUrl}/geoloc_att/off_att_push/check_sync`,
+      requestOptions,
+    )
+      .then(response => response.json())
+      .then(result => {
+        if (result.status === 200) {
+          const { pending_records } = result;
+          if (pending_records.length === 0) {
+            SyncEmployeeList();
+          } else {
+            ShowToast(
+              'error',
+              'Session Validation',
+              'You need to push all your existing sessions before syncing the employee list.',
+            );
+          }
+        } else {
+          ShowToast('error', 'Error', 'Oops! Something went wrong.');
+        }
+      })
+      .catch(error =>
+        console.error('Error checking pending validation:', error),
+      );
+  };
+
+  useFocusEffect(
+    useCallback(() => {
+      const subscription = AppState.addEventListener('change', nextAppState => {
+        if (
+          appState.current.match(/inactive|background/) &&
+          nextAppState === 'active'
+        ) {
+          PushRecordToServer(false);
+          console.log('TRIGGERRR');
+        }
+        appState.current = nextAppState;
+      });
+
+      return () => {
+        subscription.remove();
+      };
+    }, []),
+  );
 
   return (
     <View style={styles.mainContainer}>
@@ -249,20 +377,19 @@ const DashboardLandcape = props => {
           {/* Pushed Shift */}
           <View style={styles.statBoxAlt}>
             <Paragraph style={styles.statPushedTitle} text="Today’s" />
-            <Paragraph style={styles.statPushedValue} text="200" />
+            <Paragraph style={styles.statPushedValue} text={pushedCount} />
           </View>
         </View>
 
-        {/* Sync + Logout */}
         <View style={styles.footerButtonsContainer}>
           <TouchableOpacity
             onPress={() => {
               if (pendingCount === 0) {
-                SyncEmployeeList();
+                CheckPendingValidation();
               } else {
                 ShowToast(
                   'error',
-                  'Session Validation',
+                  'App Validation',
                   'You need to push all your existing sessions before syncing the employee list.',
                 );
               }
@@ -325,7 +452,12 @@ const DashboardLandcape = props => {
             </View>
 
             <View style={styles.bottomContainer}>
-              <TouchableOpacity onPress={() => {}} style={styles.bottomBar}>
+              <TouchableOpacity
+                onPress={() => {
+                  PushRecordToServer(true);
+                }}
+                style={styles.bottomBar}
+              >
                 <MaterialIcons
                   name="fact-check"
                   color={ThemeColors.secondary}
@@ -394,6 +526,7 @@ const DashboardLandcape = props => {
           )}
         </View>
       </CameraPopupLandscape>
+      <PushRecordsToServerModal visible={pendingLoader} />
     </View>
   );
 };

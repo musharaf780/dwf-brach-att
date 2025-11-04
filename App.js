@@ -14,10 +14,10 @@ import { Provider } from 'react-redux';
 import ReduxThunk from 'redux-thunk';
 import AuthReducer from './Store/Reducers/AuthReducer';
 import EmployeeDataReducer from './Store/Reducers/EmployeeDataReducer';
-
+import { toastConfig } from './utils/toastConfig';
 import DeviceInfo from 'react-native-device-info';
 import { SetIsTabletLanscape } from './Store/Actions/AuthAction';
-import { ToastProvider } from './Components/ToastManager';
+
 const App = () => {
   const rootReducer = combineReducers({
     auth: AuthReducer,
@@ -42,7 +42,7 @@ const App = () => {
 
   return (
     <Provider store={store}>
-      <MainNavigator />
+      <MainNavigator  />
       <Toast />
     </Provider>
   );

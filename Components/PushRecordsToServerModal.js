@@ -7,8 +7,9 @@ import {
 import Paragraph from './Paragraph';
 import { ThemeColors } from '../Constants/Color';
 import Heading from './Heading';
-
+import { useSelector } from 'react-redux';
 const PushRecordsToServerModal = ({ visible }) => {
+  const { isTablet } = useSelector(state => state.auth);
   const slideAnim = useRef(new Animated.Value(300)).current;
   const progressAnim = useRef(new Animated.Value(0)).current;
 
@@ -50,17 +51,30 @@ const PushRecordsToServerModal = ({ visible }) => {
     <Modal transparent visible={visible} animationType="none">
       <View style={styles.backdrop}>
         <Animated.View
-          style={[styles.container, { transform: [{ translateY: slideAnim }] }]}
+          style={[
+            styles.container,
+            {
+              transform: [{ translateY: slideAnim }],
+              height: isTablet ? hp('30%') : hp('15%'),
+              justifyContent: 'center',
+            },
+          ]}
         >
           <View style={{ marginBottom: hp('3%'), alignItems: 'center' }}>
-            <Heading style={styles.branchText} title="RECORDS PUSH TO SERVER" />
+            <Heading
+              style={isTablet ? styles.branchTextTablet : styles.branchText}
+              title="RECORDS PUSH TO SERVER"
+            />
             <Paragraph
-              style={{ color: ThemeColors.primary, textAlign: 'center' }}
+              style={{
+                color: ThemeColors.primary,
+                textAlign: 'center',
+                fontSize: isTablet ? hp('3%') : hp('1.5%'),
+              }}
               text="Please wait until records are pushed to the server."
             />
           </View>
 
-          {/* 🔵 Animated Bar */}
           <View style={styles.barBackground}>
             <Animated.View
               style={[styles.barFill, { width: widthInterpolate }]}
@@ -89,6 +103,12 @@ const styles = StyleSheet.create({
   },
   branchText: {
     fontSize: hp('2%'),
+    fontWeight: 'bold',
+    color: ThemeColors.primary,
+  },
+
+  branchTextTablet: {
+    fontSize: hp('5%'),
     fontWeight: 'bold',
     color: ThemeColors.primary,
   },

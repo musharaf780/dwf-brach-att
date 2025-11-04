@@ -7,6 +7,6 @@ export const ShowToast = (type, text1, text2) => {
     text1,
     text2,
     position: 'bottom',
-    visibilityTime: 2500,
+    visibilityTime: 1500,
   });
 };
