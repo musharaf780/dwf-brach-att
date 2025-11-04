@@ -6,6 +6,7 @@ import { initDB } from './DB/Database';
 import { initAuthDB } from './DB/AuthDatabse';
 import { initEmployeeDB } from './DB/EmployeeList';
 import { initEmployeePendingShiftDB } from './DB/EmployeePendingShift';
+import { initializeEmployeePushedShiftTable } from './DB/EmployeePushedShifts';
 import SystemNavigationBar from 'react-native-system-navigation-bar';
 import Toast from 'react-native-toast-message';
 import { createStore, combineReducers, applyMiddleware } from 'redux';
@@ -56,6 +57,7 @@ const App = () => {
       initAuthDB();
       initEmployeeDB();
       initEmployeePendingShiftDB();
+      initializeEmployeePushedShiftTable();
     };
     init();
   }, []);

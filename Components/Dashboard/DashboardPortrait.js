@@ -35,12 +35,15 @@ import {
   getUnpushedRecordsCount,
   getAllAttendanceRecords,
 } from '../../DB/EmployeePendingShift';
+import { getPushedRecordsCount } from '../../DB/EmployeePushedShifts';
 import { ShowToast } from '../ShowToast';
 import ApiConstants from '../../Constants/ApiConstants';
+
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
   const { loading, employeeList } = useSelector(state => state.employee);
   const [pendingCount, setPendingCounts] = useState(0);
+  const [pushedCount, setPushedCounts] = useState(0);
   const isProcessingRef = useRef(false);
   const [hasPermission, setHasPermission] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
@@ -199,6 +202,11 @@ const DashboardPortrait = props => {
       count => setPendingCounts(count),
       err => setPendingCounts(0),
     );
+
+    getPushedRecordsCount(
+      count => setPushedCounts(count),
+      err => setPushedCounts(0),
+    );
   }, [employeeList]);
 
   const askCameraPermission = async item => {
@@ -287,7 +295,7 @@ const DashboardPortrait = props => {
       .then(result => {
         if (result.status === 200) {
           const { pending_records } = result;
-          if (pending_records.length === 0) {
+          if (pending_records.length !== 0) {
             SyncEmployeeList();
           } else {
             ShowToast(
@@ -305,12 +313,35 @@ const DashboardPortrait = props => {
       );
   };
 
-  const PushRecordToServer = () => {
-    // CheckPendingValidation();
-    // console.log(loginSuccess.access_token);
-    // const Data = getAllAttendanceRecords();
-    // console.log(JSON.stringify(Data));
+  const PushRecordToServer = async () => {
+    try {
+      const Data = await getAllAttendanceRecords();
+      dispatch(
+        EmployeeDataAction.PendingShiftPostToServerAction(
+          loginSuccess.access_token,
+          Data,
+        ),
+      );
+    } catch (err) {
+      console.error('Error fetching attendance records:', err);
+    }
   };
+
+  // const PushRecordToServer = async () => {
+  //   const Data = await getAllAttendanceRecords();
+  //   console.log(JSON.stringify(Data), 'Data');
+  //   return;
+  // dispatch(
+  //   EmployeeDataAction.PendingShiftPostToServerAction(
+  //     loginSuccess.access_token,
+  //     Data,
+  //   ),
+  //   );
+  //   // CheckPendingValidation();
+  //   // console.log(loginSuccess.access_token);
+  //   // const Data = getAllAttendanceRecords();
+  //   // console.log(JSON.stringify(Data));
+  // };
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -348,7 +379,7 @@ const DashboardPortrait = props => {
                   } else {
                     ShowToast(
                       'error',
-                      'Session Validation',
+                      'App Validation',
                       'You need to push all your existing sessions before syncing the employee list.',
                     );
                   }
@@ -389,7 +420,7 @@ const DashboardPortrait = props => {
                 <Paragraph style={styles.statTitle} text={`Today’s\n`} />
               </View>
               <View style={styles.statRight}>
-                <Paragraph style={styles.statValue} text={`100`} />
+                <Paragraph style={styles.statValue} text={pushedCount} />
               </View>
             </View>
           </View>

@@ -1,9 +1,12 @@
 import ApiConstants from '../../Constants/ApiConstants';
 import { insertEmployeeList, getAllEmployees } from '../../DB/EmployeeList';
+
 import {
   EmployeeListDataActionConst,
   PendingShiftPostToServerActionConst,
 } from '../Constants/EmployeeDataConst';
+import { clearPendingAttendanceRecords } from '../../DB/EmployeePendingShift';
+import { insertPushedAttendanceRecord } from '../../DB/EmployeePushedShifts';
 
 export const GetAllEmployeeFromLocalDB = () => {
   return async dispatch => {
@@ -73,31 +76,47 @@ export const EmployeeListDataAction = token => {
 
 export const PendingShiftPostToServerAction = (token, data) => {
   return async dispatch => {
-    dispatch({
-      type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_REQ,
-    });
+    try {
+      dispatch({
+        type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_REQ,
+      });
 
-    const myHeaders = new Headers();
-    myHeaders.append('Content-Type', 'application/json');
-    myHeaders.append('Authorization', `Bearer ${token}`);
+      const response = await fetch(
+        `${ApiConstants.BaseUrl}/geoloc_att/push_offline_attendance_new`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({ off_att_vals: data }),
+        },
+      );
 
-    const raw = JSON.stringify({
-      off_att_vals: data,
-    });
+      const result = await response.json();
 
-    const requestOptions = {
-      method: 'POST',
-      headers: myHeaders,
-      body: raw,
-      redirect: 'follow',
-    };
+      if (result?.record_id) {
+        dispatch({
+          type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_SUCC,
+        });
 
-    fetch(
-      `${ApiConstants.BaseUrl}/geoloc_att/push_offline_attendance_new`,
-      requestOptions,
-    )
-      .then(response => response.json())
-      .then(result => console.log(result))
-      .catch(error => console.error(error));
+        // Insert each record one by one
+        for (const record of data) {
+          await insertPushedAttendanceRecord(record);
+        }
+
+        // Then clear pending local records
+        await clearPendingAttendanceRecords();
+      } else {
+        dispatch({
+          type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_FAIL,
+        });
+      }
+    } catch (error) {
+      console.error('Pending shift post error:', error);
+      dispatch({
+        type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_FAIL,
+      });
+    }
   };
 };

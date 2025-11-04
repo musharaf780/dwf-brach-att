@@ -1,6 +1,5 @@
 import SQLite from 'react-native-sqlite-storage';
 
-// Database creation
 const db = SQLite.openDatabase(
   {
     name: 'employeePendingShift.db',
@@ -10,7 +9,6 @@ const db = SQLite.openDatabase(
   error => console.log('❌ Database error: ' + error),
 );
 
-// Table creation
 export const initEmployeePendingShiftDB = () => {
   db.transaction(tx => {
     tx.executeSql(
@@ -20,7 +18,7 @@ export const initEmployeePendingShiftDB = () => {
         employee_id INTEGER,
         add_date_flag INTEGER,
         loc_date TEXT,
-        attachment TEXT,        -- full JSON string
+        attachment TEXT,  
         last_sync_seq TEXT,
         isPushed INTEGER,
         createdAt TEXT
@@ -76,47 +74,45 @@ export const insertAttendanceRecord = data => {
   });
 };
 
-export const getAllAttendanceRecords = (success, error) => {
-  db.transaction(tx => {
-    tx.executeSql(
-      `SELECT * FROM attendance_records;`,
-      [],
-      (_, result) => {
-        const records = [];
+export const getAllAttendanceRecords = () => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `SELECT * FROM attendance_records;`,
+        [],
+        (_, result) => {
+          const records = [];
 
-        for (let i = 0; i < result.rows.length; i++) {
-          const row = result.rows.item(i);
+          for (let i = 0; i < result.rows.length; i++) {
+            const row = result.rows.item(i);
 
-          try {
-            row.attachment = JSON.parse(row.attachment);
-          } catch {
-            row.attachment = {};
-          }
+            try {
+              row.attachment = JSON.parse(row.attachment);
+            } catch {
+              row.attachment = {};
+            }
 
-          // ✅ Add static flag
-          row.add_date_flag = true;
+            row.add_date_flag = true;
 
-          // ✅ Format loc_date: remove 'T' and 'Z'
-          if (row.loc_date) {
+            // ✅ Format loc_date: remove 'T', 'Z', and milliseconds
             if (row.loc_date) {
               row.loc_date = row.loc_date
                 .replace('T', ' ')
                 .replace('Z', '')
                 .split('.')[0];
             }
+
+            records.push(row);
           }
 
-          records.push(row);
-        }
-
-        console.log(JSON.stringify(records));
-        success && success(records);
-      },
-      (_, err) => {
-        console.log('❌ Fetch attendance error: ' + err.message);
-        error && error(err);
-      },
-    );
+          resolve(records);
+        },
+        (_, err) => {
+          console.log('❌ Fetch attendance error:', err.message);
+          reject(err);
+        },
+      );
+    });
   });
 };
 
@@ -148,6 +144,23 @@ export const markAsPushed = (id, success, error) => {
       },
       (_, err) => {
         console.log('❌ Update error: ' + err.message);
+        error && error(err);
+      },
+    );
+  });
+};
+
+export const clearPendingAttendanceRecords = (success, error) => {
+  db.transaction(tx => {
+    tx.executeSql(
+      `DELETE FROM attendance_records;`,
+      [],
+      (_, result) => {
+        console.log('🧹 All attendance records deleted successfully');
+        success && success(result);
+      },
+      (_, err) => {
+        console.log('❌ Failed to delete records: ' + err.message);
         error && error(err);
       },
     );
