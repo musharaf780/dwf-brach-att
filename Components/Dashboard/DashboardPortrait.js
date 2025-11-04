@@ -45,7 +45,6 @@ const DashboardPortrait = props => {
   const [pendingCount, setPendingCounts] = useState(0);
   const [pushedCount, setPushedCounts] = useState(0);
   const isProcessingRef = useRef(false);
-  const [hasPermission, setHasPermission] = useState(false);
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [imageString, setImageString] = useState(null);
 
