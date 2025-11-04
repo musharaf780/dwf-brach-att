@@ -114,9 +114,9 @@ const DashboardPortrait = props => {
         400,
         'JPEG',
         20,
-        -90, // rotation (keep 0 to respect EXIF)
-        undefined, // outputPath
-        false, // keepExif (true in some versions)
+        -90, 
+        undefined, 
+        false, 
         {
           mode: 'contain',
           onlyScaleDown: false,
