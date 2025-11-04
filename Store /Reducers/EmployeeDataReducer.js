@@ -1,10 +1,15 @@
-import { EmployeeListDataActionConst } from '../Constants/EmployeeDataConst';
+import {
+  EmployeeListDataActionConst,
+  PendingShiftPostToServerActionConst,
+} from '../Constants/EmployeeDataConst';
 
 const initialState = {
   loading: false,
   employeeList: [],
   employeeListError: null,
-  
+
+  pendingLoader: false,
+  pendingShiftPostToServerStatus: null,
 };
 
 export default (state = initialState, action) => {
@@ -29,6 +34,27 @@ export default (state = initialState, action) => {
         ...state,
         loading: false,
         employeeListError: action.message,
+      };
+
+    case PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_REQ:
+      return {
+        ...state,
+        pendingLoader: true,
+        pendingShiftPostToServerStatus: null,
+      };
+
+    case PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_SUCC:
+      return {
+        ...state,
+        pendingLoader: false,
+        pendingShiftPostToServerStatus: action.status,
+      };
+
+    case PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_FAIL:
+      return {
+        ...state,
+        pendingLoader: false,
+        pendingShiftPostToServerStatus: action.status,
       };
 
     default:

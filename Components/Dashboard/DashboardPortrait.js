@@ -38,10 +38,15 @@ import {
 import { getPushedRecordsCount } from '../../DB/EmployeePushedShifts';
 import { ShowToast } from '../ShowToast';
 import ApiConstants from '../../Constants/ApiConstants';
-
+import PushRecordsToServerModal from '../PushRecordsToServerModal';
 const DashboardPortrait = props => {
   const { loginSuccess } = useSelector(state => state.auth);
-  const { loading, employeeList } = useSelector(state => state.employee);
+  const {
+    loading,
+    employeeList,
+    pendingLoader,
+    pendingShiftPostToServerStatus,
+  } = useSelector(state => state.employee);
   const [pendingCount, setPendingCounts] = useState(0);
   const [pushedCount, setPushedCounts] = useState(0);
   const isProcessingRef = useRef(false);
@@ -319,6 +324,7 @@ const DashboardPortrait = props => {
         EmployeeDataAction.PendingShiftPostToServerAction(
           loginSuccess.access_token,
           Data,
+          true,
         ),
       );
     } catch (err) {
@@ -326,21 +332,19 @@ const DashboardPortrait = props => {
     }
   };
 
-  // const PushRecordToServer = async () => {
-  //   const Data = await getAllAttendanceRecords();
-  //   console.log(JSON.stringify(Data), 'Data');
-  //   return;
-  // dispatch(
-  //   EmployeeDataAction.PendingShiftPostToServerAction(
-  //     loginSuccess.access_token,
-  //     Data,
-  //   ),
-  //   );
-  //   // CheckPendingValidation();
-  //   // console.log(loginSuccess.access_token);
-  //   // const Data = getAllAttendanceRecords();
-  //   // console.log(JSON.stringify(Data));
-  // };
+  useEffect(() => {
+    console.log(
+      pendingShiftPostToServerStatus,
+      'pendingShiftPostToServerStatus',
+    );
+    if (pendingShiftPostToServerStatus) {
+      ShowToast(
+        pendingShiftPostToServerStatus?.type,
+        'Shifts Status',
+        pendingShiftPostToServerStatus?.status,
+      );
+    }
+  }, [pendingLoader]);
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -526,6 +530,7 @@ const DashboardPortrait = props => {
           )}
         </View>
       </CameraPopupPortrail>
+      <PushRecordsToServerModal visible={pendingLoader} />
     </SafeAreaView>
   );
 };

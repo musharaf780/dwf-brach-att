@@ -74,12 +74,14 @@ export const EmployeeListDataAction = token => {
   };
 };
 
-export const PendingShiftPostToServerAction = (token, data) => {
+export const PendingShiftPostToServerAction = (token, data, loader) => {
   return async dispatch => {
     try {
-      dispatch({
-        type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_REQ,
-      });
+      if (loader) {
+        dispatch({
+          type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_REQ,
+        });
+      }
 
       const response = await fetch(
         `${ApiConstants.BaseUrl}/geoloc_att/push_offline_attendance_new`,
@@ -98,24 +100,35 @@ export const PendingShiftPostToServerAction = (token, data) => {
       if (result?.record_id) {
         dispatch({
           type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_SUCC,
+          status: {
+            type: 'success',
+            status:
+              'All your pending records have been pushed to the server successfully.',
+          },
         });
 
-        // Insert each record one by one
         for (const record of data) {
           await insertPushedAttendanceRecord(record);
         }
 
-        // Then clear pending local records
         await clearPendingAttendanceRecords();
       } else {
         dispatch({
           type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_FAIL,
+          status: {
+            type: 'error',
+            status:
+              'Something went wrong while pushing records. Please try again later.',
+          },
         });
       }
     } catch (error) {
-      console.error('Pending shift post error:', error);
       dispatch({
         type: PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_FAIL,
+        status: {
+          type: 'error',
+          status: 'Something went wrong. Please try again later.',
+        },
       });
     }
   };
