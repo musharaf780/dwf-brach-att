@@ -279,9 +279,9 @@ const DashboardPortrait = props => {
   };
 
   const handleItemClick = async item => {
+    ExecuteSyncRecord();
     await CheckCameraPermission(item);
   };
-  
 
   const CheckPendingValidation = () => {
     const myHeaders = new Headers();
@@ -301,7 +301,7 @@ const DashboardPortrait = props => {
       .then(result => {
         if (result.status === 200) {
           const { pending_records } = result;
-          if (pending_records.length !== 0) {
+          if (pending_records.length === 0) {
             SyncEmployeeList();
           } else {
             ShowToast(
@@ -320,17 +320,25 @@ const DashboardPortrait = props => {
   };
 
   const PushRecordToServer = async loader => {
-    try {
-      const Data = await getAllAttendanceRecords();
-      dispatch(
-        EmployeeDataAction.PendingShiftPostToServerAction(
-          loginSuccess.access_token,
-          Data,
-          loader,
-        ),
+    if (pendingCount === 0) {
+      ShowToast(
+        'error',
+        'Pending Records',
+        'There is no pending records to push.',
       );
-    } catch (err) {
-      console.error('Error fetching attendance records:', err);
+    } else {
+      try {
+        const Data = await getAllAttendanceRecords();
+        dispatch(
+          EmployeeDataAction.PendingShiftPostToServerAction(
+            loginSuccess.access_token,
+            Data,
+            loader,
+          ),
+        );
+      } catch (err) {
+        console.error('Error fetching attendance records:', err);
+      }
     }
   };
 
@@ -344,8 +352,39 @@ const DashboardPortrait = props => {
     }
   }, [pendingLoader]);
 
+  const ExecuteSyncRecord = () => {
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
+
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      redirect: 'follow',
+    };
+
+    fetch(
+      `${ApiConstants.BaseUrl}/geoloc_att/off_att_push/execute_sync`,
+      requestOptions,
+    )
+      .then(response => response.json())
+      .then(result => {
+        if (result?.success) {
+          ShowToast('success', 'Execute Sync', 'All Records Sync successfully');
+        } else {
+          ShowToast(
+            'error',
+            'Execute Sync',
+            'All Records not Sync successfully',
+          );
+        }
+      })
+      .catch(error => console.error(error));
+  };
+
   useFocusEffect(
     useCallback(() => {
+      console.log('TRIGGER');
+      PushRecordToServer(false);
       const subscription = AppState.addEventListener('change', nextAppState => {
         if (
           appState.current.match(/inactive|background/) &&
