@@ -320,25 +320,26 @@ const DashboardPortrait = props => {
   };
 
   const PushRecordToServer = async loader => {
-    if (pendingCount === 0) {
+    if (pendingCount === 0 && loader) {
       ShowToast(
         'error',
         'Pending Records',
-        'There is no pending records to push.',
+        'There are no pending records to push.',
       );
-    } else {
-      try {
-        const Data = await getAllAttendanceRecords();
-        dispatch(
-          EmployeeDataAction.PendingShiftPostToServerAction(
-            loginSuccess.access_token,
-            Data,
-            loader,
-          ),
-        );
-      } catch (err) {
-        console.error('Error fetching attendance records:', err);
-      }
+      return;
+    }
+
+    try {
+      const Data = await getAllAttendanceRecords();
+      dispatch(
+        EmployeeDataAction.PendingShiftPostToServerAction(
+          loginSuccess.access_token,
+          Data,
+          loader,
+        ),
+      );
+    } catch (err) {
+      console.error('Error fetching attendance records:', err);
     }
   };
 
@@ -383,8 +384,8 @@ const DashboardPortrait = props => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('TRIGGER');
       PushRecordToServer(false);
+
       const subscription = AppState.addEventListener('change', nextAppState => {
         if (
           appState.current.match(/inactive|background/) &&

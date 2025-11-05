@@ -44,7 +44,7 @@ export const EmployeeListDataAction = token => {
       );
 
       const result = await response.json();
-      console.log(JSON.stringify(result), 'asfasd');
+      console.log(JSON.stringify(result));
 
       if (result.status === 200 && Array.isArray(result?.sub_employees)) {
         let list = result.sub_employees;

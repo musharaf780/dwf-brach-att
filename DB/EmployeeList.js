@@ -29,6 +29,7 @@ export const initEmployeeDB = () => {
         partner_id INTEGER,
         user_id INTEGER,
         value TEXT,
+        image TEXT,
         checkIn INTEGER
       );`,
       [],
@@ -71,8 +72,9 @@ export const insertEmployeeList = records => {
           partner_id,
           user_id,
           value,
+          image,
           checkIn
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
           [
             record.id,
             record.allow_chkin_outzone ? 1 : 0,
@@ -97,6 +99,7 @@ export const insertEmployeeList = records => {
             record.partner_id,
             record.user_id,
             record.value,
+            record?.image ? record.image : null,
             record.checkIn ? 1 : 0,
           ],
           null,
