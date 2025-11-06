@@ -60,7 +60,7 @@ const LoginScreen = props => {
   useEffect(() => {
     setTimeout(() => {
       askCameraPermission();
-    }, 1000);
+    }, 1500);
   }, []);
 
   return isTablet ? (

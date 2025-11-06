@@ -40,7 +40,7 @@ import { ShowToast } from '../ShowToast';
 import PushRecordsToServerModal from '../PushRecordsToServerModal';
 import ApiConstants from '../../Constants/ApiConstants';
 const DashboardLandcape = props => {
-  const { loginSuccess } = useSelector(state => state.auth);
+  const { loginSuccess, userInformation } = useSelector(state => state.auth);
   const {
     loading,
     employeeList,
@@ -432,7 +432,7 @@ const DashboardLandcape = props => {
 
         <View style={styles.welcomeWrapper}>
           <Paragraph style={styles.welcomeText} text="Welcome," />
-          <Paragraph style={styles.branchText} text="Dammam Road Branch" />
+          <Paragraph style={styles.branchText} text={userInformation?.name} />
         </View>
 
         <View style={styles.statsContainer}>

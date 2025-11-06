@@ -4,11 +4,11 @@ import { useSelector } from 'react-redux';
 import * as AuthAction from '../Store/Actions/AuthAction';
 import { View, Text } from 'react-native';
 import { useDispatch } from 'react-redux';
+import { useEffect } from 'react';
 const SplashScreen = props => {
   const { isTablet } = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
-  
   return isTablet ? (
     <DashboardLandcape
       logoutPress={() => {

@@ -45,6 +45,9 @@ const LoginScreenPortrail = props => {
 
   useEffect(() => {
     if (loginSuccess) {
+      dispatch(
+        AuthAction.GetEmployeeInformationAction(loginSuccess.access_token),
+      );
       props.navigate();
     } else if (loginFail) {
       ShowToast(

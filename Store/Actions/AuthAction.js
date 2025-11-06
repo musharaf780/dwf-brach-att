@@ -2,10 +2,11 @@ import {
   IsTabletActionConst,
   UserLoginActionConst,
   UserAuthDataToReduxActionConst,
+  GetEmployeeInformationActionConst,
 } from '../Constants/AuthConstant';
 import ApiConstants from '../../Constants/ApiConstants';
 import { saveAuthData, clearAuthData } from '../../DB/AuthDatabse';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
 export const SetIsTabletLanscape = bool => {
   return async dispatch => {
     dispatch({
@@ -71,4 +72,66 @@ export const UserLoginAction = info => {
       })
       .catch(error => console.log('error', error));
   };
+};
+
+export const GetEmployeeInformationAction = token => {
+  return async dispatch => {
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append('Authorization', `Bearer ${token}`);
+
+      const requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow',
+      };
+
+      fetch(
+        `${ApiConstants.BaseUrl}/user/quick_info?db=${ApiConstants.DatabaseName}`,
+        requestOptions,
+      )
+        .then(response => response.json())
+        .then(async result => {
+          console.log(JSON.stringify(result));
+          await saveDataIntoStorage(result);
+          dispatch({
+            type: GetEmployeeInformationActionConst.USER_PROFILE_INFORMATION,
+            data: result,
+          });
+        })
+        .catch(error => console.error(error));
+    } catch (error) {
+      console.log('Logout error:', error.message);
+    }
+  };
+};
+
+export const GetUserInformationFromLocal = () => {
+  return async dispatch => {
+    try {
+      const data = await getDataFromStorage();
+      if (data) {
+        dispatch({
+          type: GetEmployeeInformationActionConst.USER_PROFILE_INFORMATION,
+          data,
+        });
+      }
+    } catch (error) {
+      console.log('Logout error:', error.message);
+    }
+  };
+};
+
+export const getDataFromStorage = async () => {
+  try {
+    const value = await AsyncStorage.getItem('userInfo');
+    return value ? JSON.parse(value) : null;
+  } catch (error) {
+    console.log('Error retrieving user info:', error);
+    return null;
+  }
+};
+
+const saveDataIntoStorage = async userInfo => {
+  await AsyncStorage.setItem('userInfo', JSON.stringify(userInfo));
 };

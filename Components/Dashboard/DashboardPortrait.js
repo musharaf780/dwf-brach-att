@@ -44,7 +44,7 @@ import ApiConstants from '../../Constants/ApiConstants';
 import PushRecordsToServerModal from '../PushRecordsToServerModal';
 
 const DashboardPortrait = props => {
-  const { loginSuccess } = useSelector(state => state.auth);
+  const { loginSuccess, userInformation } = useSelector(state => state.auth);
   const {
     loading,
     employeeList,
@@ -440,7 +440,7 @@ const DashboardPortrait = props => {
                 <Paragraph style={styles.welcomeText} text="Welcome," />
                 <Paragraph
                   style={styles.branchText}
-                  text="Dammam Road Branch"
+                  text={userInformation?.name}
                 />
               </View>
             </View>

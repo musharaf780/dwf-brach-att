@@ -2,6 +2,7 @@ import {
   IsTabletActionConst,
   UserLoginActionConst,
   UserAuthDataToReduxActionConst,
+  GetEmployeeInformationActionConst,
 } from '../Constants/AuthConstant';
 
 const initialState = {
@@ -9,6 +10,7 @@ const initialState = {
   loader: false,
   loginSuccess: null,
   loginFail: null,
+  userInformation: null,
 };
 
 export default (state = initialState, action) => {
@@ -57,6 +59,13 @@ export default (state = initialState, action) => {
       state = {
         ...state,
         loginSuccess: null,
+      };
+      break;
+
+    case GetEmployeeInformationActionConst.USER_PROFILE_INFORMATION:
+      state = {
+        ...state,
+        userInformation: action.data,
       };
       break;
   }

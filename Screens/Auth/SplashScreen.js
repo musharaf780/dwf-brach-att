@@ -22,6 +22,7 @@ const SplashScreen = props => {
     <LandscapeLayout
       onNavigate={() => {
         if (loginSuccess) {
+          dispatch(AuthAction.GetUserInformationFromLocal());
           props.navigation.replace('DashboardScreen');
         } else {
           props.navigation.replace('LoginScreen');
@@ -32,6 +33,7 @@ const SplashScreen = props => {
     <PortraitLayout
       onNavigate={() => {
         if (loginSuccess) {
+          dispatch(AuthAction.GetUserInformationFromLocal());
           props.navigation.replace('DashboardScreen');
         } else {
           props.navigation.replace('LoginScreen');
