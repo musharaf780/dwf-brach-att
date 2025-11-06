@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, TouchableOpacity, StyleSheet } from 'react-native';
+import { View, TouchableOpacity, StyleSheet, Image } from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
@@ -13,16 +13,27 @@ const EmployyeTileLandscape = ({ items, onItemClick }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
-        <IoIcon
-          size={hp('5%')}
-          color={ThemeColors.primary}
-          name="person-sharp"
-        />
+        {items?.image ? (
+          <Image
+            style={{
+              width: '80%',
+              height: '100%',
+
+              resizeMode: 'contain',
+            }}
+            source={{ uri: items?.image }}
+          />
+        ) : (
+          <IoIcon
+            size={hp('5%')}
+            color={ThemeColors.primary}
+            name="person-sharp"
+          />
+        )}
       </View>
 
       <View style={styles.detailsContainer}>
         <Heading style={styles.name} title={items?.name} />
-        <Paragraph style={styles.dateText} text={''} />
 
         <TouchableOpacity
           onPress={() => onItemClick(items)}
@@ -76,6 +87,7 @@ const styles = StyleSheet.create({
     width: '18%',
     justifyContent: 'center',
     alignItems: 'center',
+    marginRight: hp('1.5%'),
   },
   detailsContainer: {
     flex: 1,

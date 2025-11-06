@@ -9,6 +9,7 @@ import {
   Image,
   ActivityIndicator,
   AppState,
+  Platform,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -46,17 +47,17 @@ const DashboardLandcape = props => {
     pendingLoader,
     pendingShiftPostToServerStatus,
   } = useSelector(state => state.employee);
+  const isiOS = Platform.OS === 'ios' ? true : false;
   const [pendingCount, setPendingCounts] = useState(0);
   const [pushedCount, setPushedCounts] = useState(0);
   const isProcessingRef = useRef(false);
   const [hasPermission, setHasPermission] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [imageString, setImageString] = useState(null);
   const appState = React.useRef(AppState.currentState);
   const camera = useRef(null);
   const isCapturingRef = useRef(false);
   const [showCameraPopup, setShowCameraPopup] = useState(false);
-
+  const selectedEmployeeRef = useRef(null);
   const deviceFront = useCameraDevice('front');
 
   const dispatch = useDispatch();
@@ -80,7 +81,6 @@ const DashboardLandcape = props => {
     const status = await check(permission);
 
     if (status === RESULTS.GRANTED) {
-      setSelectedEmployee(item);
       // setShowCameraPopup(true);
     } else {
       const result = await request(permission);
@@ -113,7 +113,6 @@ const DashboardLandcape = props => {
     const status = await check(permission);
 
     if (status === RESULTS.GRANTED) {
-      setSelectedEmployee(item);
       setShowCameraPopup(true);
       ShowToast('success', 'Camera', 'Camera permission already granted');
     } else {
@@ -121,7 +120,38 @@ const DashboardLandcape = props => {
     }
   };
 
+  const ExecuteSyncRecord = () => {
+    const myHeaders = new Headers();
+    myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
+
+    const requestOptions = {
+      method: 'POST',
+      headers: myHeaders,
+      redirect: 'follow',
+    };
+
+    fetch(
+      `${ApiConstants.BaseUrl}/geoloc_att/off_att_push/execute_sync`,
+      requestOptions,
+    )
+      .then(response => response.json())
+      .then(result => {
+        console.log(JSON.stringify(result), 'ExecuteSyncRecord');
+        if (result?.success) {
+          ShowToast('success', 'Execute Sync', 'All Records Sync successfully');
+        } else {
+          ShowToast(
+            'error',
+            'Execute Sync',
+            'All Records not Sync successfully',
+          );
+        }
+      })
+      .catch(error => console.error(error));
+  };
+
   const handleItemClick = async item => {
+    ExecuteSyncRecord();
     await CheckCameraPermission(item);
   };
 
@@ -183,9 +213,9 @@ const DashboardLandcape = props => {
         400,
         'JPEG',
         20,
-        -90, // rotation (keep 0 to respect EXIF)
-        undefined, // outputPath
-        false, // keepExif (true in some versions)
+        isiOS ? 0 : -90,
+        undefined,
+        false,
         {
           mode: 'contain',
           onlyScaleDown: false,
@@ -195,7 +225,6 @@ const DashboardLandcape = props => {
       );
       const base64 = await RNFS.readFile(compressed.path, 'base64');
 
-      console.log('🧩 Short Base64 Preview:', JSON.stringify());
       setImageString(base64);
     } catch (error) {
       console.log('Error capturing photo:', error);
@@ -207,8 +236,14 @@ const DashboardLandcape = props => {
   const ProceedHandler = async () => {
     if (isProcessingRef.current) return;
     isProcessingRef.current = true;
+
+    if (!selectedEmployeeRef.current?.id) {
+      ShowToast('error', 'Employee', 'No employee selected');
+      isProcessingRef.current = false;
+      return;
+    }
     try {
-      let employeeId = selectedEmployee.id;
+      let employeeId = selectedEmployeeRef.current.id;
       const currentDate = new Date();
       const utcDate = new Date(currentDate.toUTCString());
       const formattedDate = utcDate
@@ -225,17 +260,20 @@ const DashboardLandcape = props => {
       const [formattedDateOnly, formattedTimeOnly] = formattedDate
         .split(' ')
         .map(part => part.split(/[-:]/));
+
       const ModifiedUniqueString = `${formattedDateOnly[0]}${
         formattedDateOnly[1]
       }${formattedDateOnly[2]}${formattedTimeOnly[0]}${formattedTimeOnly[1]}${
         formattedTimeOnly[2]
       }${manipulateNumber(milliseconds)}${PadNumberWithZeros(
-        selectedEmployee.id,
-      )}${selectedEmployee?.checkIn ? 2 : 1}`;
+        selectedEmployeeRef.current.id,
+      )}${selectedEmployeeRef.current?.checkIn ? 2 : 1}`;
 
       const data = {
-        api_call_for: selectedEmployee.checkIn ? 'checkout' : 'checkin',
-        employee_id: selectedEmployee.id,
+        api_call_for: selectedEmployeeRef?.current?.checkIn
+          ? 'checkout'
+          : 'checkin',
+        employee_id: selectedEmployeeRef?.current?.id,
         add_date_flag: true,
         attachment: {
           name: currentDate.toString(),
@@ -252,14 +290,16 @@ const DashboardLandcape = props => {
       if (insert) {
         await toggleEmployeeCheckIn(employeeId);
         setImageString(null);
-        setSelectedEmployee(null);
+
+        selectedEmployeeRef.current = null;
         ShowToast('success', 'Attendance session', 'Shift saved successfully');
         setShowCameraPopup(false);
         GetTheListFromLocal();
       }
     } catch (error) {
       setImageString(null);
-      setSelectedEmployee(null);
+
+      selectedEmployeeRef.current = null;
       ShowToast(
         'error',
         'Attandence session',
@@ -267,7 +307,7 @@ const DashboardLandcape = props => {
       );
       setShowCameraPopup(false);
     } finally {
-      isProcessingRef.current = false; // 🔓 unlock instantly
+      isProcessingRef.current = false;
     }
   };
 
@@ -286,8 +326,19 @@ const DashboardLandcape = props => {
   const [uiRotation, setUiRotation] = useState(90);
 
   const PushRecordToServer = async loader => {
+    console.log('TRIGGERR');
+    if (pendingCount === 0 && loader) {
+      ShowToast(
+        'error',
+        'Pending Records',
+        'There are no pending records to push.',
+      );
+      return;
+    }
+
     try {
       const Data = await getAllAttendanceRecords();
+
       dispatch(
         EmployeeDataAction.PendingShiftPostToServerAction(
           loginSuccess.access_token,
@@ -335,16 +386,16 @@ const DashboardLandcape = props => {
         console.error('Error checking pending validation:', error),
       );
   };
-
   useFocusEffect(
     useCallback(() => {
+      PushRecordToServer(false);
+
       const subscription = AppState.addEventListener('change', nextAppState => {
         if (
           appState.current.match(/inactive|background/) &&
           nextAppState === 'active'
         ) {
           PushRecordToServer(false);
-          console.log('TRIGGERRR');
         }
         appState.current = nextAppState;
       });
@@ -443,7 +494,10 @@ const DashboardLandcape = props => {
                 {employeeList.map((item, index) => (
                   <View key={index.toString()} style={styles.employeeTile}>
                     <EmployyeTileLandscape
-                      onItemClick={handleItemClick}
+                      onItemClick={() => {
+                        selectedEmployeeRef.current = item;
+                        handleItemClick(item);
+                      }}
                       items={item}
                     />
                   </View>
