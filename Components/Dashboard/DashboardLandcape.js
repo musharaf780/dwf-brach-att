@@ -500,7 +500,45 @@ const DashboardLandcape = props => {
         {!loading && (
           <>
             <View style={styles.searchContainer}>
-              <SearchTile />
+              <View
+                style={{
+                  backgroundColor: ThemeColors.white,
+                  width: '90%',
+                  flexDirection: 'row',
+                  alignItems: 'center',
+                  alignSelf: 'center',
+                  paddingHorizontal: hp('2%'),
+                  borderRadius: hp('1%'),
+                  marginVertical: hp('1%'),
+                }}
+              >
+                <TextInput
+                  value={search}
+                  onChangeText={text => setSearch(text)}
+                  placeholder="Search"
+                  placeholderTextColor={ThemeColors.light}
+                  style={{
+                    flex: 1,
+                    fontSize: hp('2%'),
+                    color: ThemeColors.dark,
+                    paddingVertical: hp('1%'),
+                  }}
+                  returnKeyType="search"
+                />
+                <TouchableOpacity
+                  style={{
+                    paddingLeft: hp('1%'),
+                  }}
+                  activeOpacity={0.7}
+                  onPress={() => console.log('Search Pressed')}
+                >
+                  <IoIcon
+                    size={hp('2.2%')}
+                    name="search-outline"
+                    color={ThemeColors.light}
+                  />
+                </TouchableOpacity>
+              </View>
             </View>
 
             <View style={styles.employeeContainer}>
@@ -508,17 +546,23 @@ const DashboardLandcape = props => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.employeeScroll}
               >
-                {employeeList.map((item, index) => (
-                  <View key={index.toString()} style={styles.employeeTile}>
-                    <EmployyeTileLandscape
-                      onItemClick={() => {
-                        selectedEmployeeRef.current = item;
-                        handleItemClick(item);
-                      }}
-                      items={item}
-                    />
-                  </View>
-                ))}
+                {employeeList.map((item, index) => {
+                  if (
+                    String(item?.name).trim().toUpperCase().includes(search)
+                  ) {
+                    return (
+                      <View key={index.toString()} style={styles.employeeTile}>
+                        <EmployyeTileLandscape
+                          onItemClick={() => {
+                            selectedEmployeeRef.current = item;
+                            handleItemClick(item);
+                          }}
+                          items={item}
+                        />
+                      </View>
+                    );
+                  }
+                })}
               </ScrollView>
             </View>
 
