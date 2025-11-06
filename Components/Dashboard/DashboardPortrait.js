@@ -183,7 +183,7 @@ const DashboardPortrait = props => {
         attachment: {
           name: currentDate.toString(),
           type: 'binary',
-          datas: 'imageString',
+          datas: imageString,
         },
         last_sync_seq: ModifiedUniqueString,
         isPushed: 0,
@@ -341,6 +341,7 @@ const DashboardPortrait = props => {
 
     try {
       const Data = await getAllAttendanceRecords();
+
       dispatch(
         EmployeeDataAction.PendingShiftPostToServerAction(
           loginSuccess.access_token,
