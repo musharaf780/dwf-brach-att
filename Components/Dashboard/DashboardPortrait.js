@@ -13,6 +13,7 @@ import {
   openSettings,
   Linking,
   AppState,
+  Button,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -53,14 +54,16 @@ const DashboardPortrait = props => {
   const [pendingCount, setPendingCounts] = useState(0);
   const [pushedCount, setPushedCounts] = useState(0);
   const isProcessingRef = useRef(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
+
   const [imageString, setImageString] = useState(null);
   const appState = React.useRef(AppState.currentState);
   const camera = useRef(null);
   const isCapturingRef = useRef(false);
   const [showCameraPopup, setShowCameraPopup] = useState(false);
-
+  const isiOS = Platform.OS === 'ios' ? true : false;
   const deviceFront = useCameraDevice('front');
+
+  const selectedEmployeeRef = useRef(null);
 
   const dispatch = useDispatch();
 
@@ -115,7 +118,7 @@ const DashboardPortrait = props => {
         400,
         'JPEG',
         20,
-        -90,
+        isiOS ? 0 : -90,
         undefined,
         false,
         {
@@ -138,8 +141,14 @@ const DashboardPortrait = props => {
   const ProceedHandler = async () => {
     if (isProcessingRef.current) return;
     isProcessingRef.current = true;
+
+    if (!selectedEmployeeRef.current?.id) {
+      ShowToast('error', 'Employee', 'No employee selected');
+      isProcessingRef.current = false;
+      return;
+    }
     try {
-      let employeeId = selectedEmployee.id;
+      let employeeId = selectedEmployeeRef.current.id;
       const currentDate = new Date();
       const utcDate = new Date(currentDate.toUTCString());
       const formattedDate = utcDate
@@ -162,17 +171,19 @@ const DashboardPortrait = props => {
       }${formattedDateOnly[2]}${formattedTimeOnly[0]}${formattedTimeOnly[1]}${
         formattedTimeOnly[2]
       }${manipulateNumber(milliseconds)}${PadNumberWithZeros(
-        selectedEmployee.id,
-      )}${selectedEmployee?.checkIn ? 2 : 1}`;
+        selectedEmployeeRef.current.id,
+      )}${selectedEmployeeRef.current?.checkIn ? 2 : 1}`;
 
       const data = {
-        api_call_for: selectedEmployee.checkIn ? 'checkout' : 'checkin',
-        employee_id: selectedEmployee.id,
+        api_call_for: selectedEmployeeRef?.current?.checkIn
+          ? 'checkout'
+          : 'checkin',
+        employee_id: selectedEmployeeRef?.current?.id,
         add_date_flag: true,
         attachment: {
           name: currentDate.toString(),
           type: 'binary',
-          datas: imageString,
+          datas: 'imageString',
         },
         last_sync_seq: ModifiedUniqueString,
         isPushed: 0,
@@ -184,14 +195,16 @@ const DashboardPortrait = props => {
       if (insert) {
         await toggleEmployeeCheckIn(employeeId);
         setImageString(null);
-        setSelectedEmployee(null);
+
+        selectedEmployeeRef.current = null;
         ShowToast('success', 'Attendance session', 'Shift saved successfully');
         setShowCameraPopup(false);
         GetTheListFromLocal();
       }
     } catch (error) {
       setImageString(null);
-      setSelectedEmployee(null);
+
+      selectedEmployeeRef.current = null;
       ShowToast(
         'error',
         'Attandence session',
@@ -199,7 +212,7 @@ const DashboardPortrait = props => {
       );
       setShowCameraPopup(false);
     } finally {
-      isProcessingRef.current = false; // 🔓 unlock instantly
+      isProcessingRef.current = false;
     }
   };
 
@@ -224,13 +237,11 @@ const DashboardPortrait = props => {
     const status = await check(permission);
 
     if (status === RESULTS.GRANTED) {
-      setSelectedEmployee(item);
       setShowCameraPopup(true);
       ShowToast('success', 'Camera', 'Camera permission already granted');
     } else {
       const result = await request(permission);
       if (result === RESULTS.GRANTED) {
-        setSelectedEmployee(item);
         setShowCameraPopup(true);
         ShowToast(
           'success',
@@ -259,7 +270,6 @@ const DashboardPortrait = props => {
     const status = await check(permission);
 
     if (status === RESULTS.GRANTED) {
-      setSelectedEmployee(item);
       setShowCameraPopup(true);
       ShowToast('success', 'Camera', 'Camera permission already granted');
     } else {
@@ -508,7 +518,10 @@ const DashboardPortrait = props => {
               >
                 {employeeList.map((item, index) => (
                   <EmployeeTile
-                    onItemClick={handleItemClick}
+                    onItemClick={() => {
+                      selectedEmployeeRef.current = item;
+                      handleItemClick(item);
+                    }}
                     key={index.toString()}
                     items={item}
                   />
