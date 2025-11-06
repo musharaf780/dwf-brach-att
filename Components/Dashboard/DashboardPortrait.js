@@ -62,7 +62,7 @@ const DashboardPortrait = props => {
   const [showCameraPopup, setShowCameraPopup] = useState(false);
   const isiOS = Platform.OS === 'ios' ? true : false;
   const deviceFront = useCameraDevice('front');
-
+  const [search, setSearch] = useState('');
   const selectedEmployeeRef = useRef(null);
 
   const dispatch = useDispatch();
@@ -84,6 +84,10 @@ const DashboardPortrait = props => {
   const SearchTile = () => (
     <View style={styles.searchContainer}>
       <TextInput
+        value={search}
+        onChangeText={text => {
+          setSearch(text);
+        }}
         placeholder="Search"
         placeholderTextColor={ThemeColors.light}
         style={styles.searchInput}
@@ -496,10 +500,24 @@ const DashboardPortrait = props => {
           </View>
         </View>
 
-        {/* Content Section */}
         <View style={styles.contentSection}>
           <View style={styles.innerContainer}>
-            <SearchTile />
+            <View style={styles.searchContainer}>
+              <TextInput
+                value={search}
+                onChangeText={text => setSearch(text)}
+                placeholder="Search"
+                placeholderTextColor={ThemeColors.light}
+                style={styles.searchInput}
+              />
+              <TouchableOpacity style={styles.searchIcon}>
+                <IoIcon
+                  size={hp('2.2%')}
+                  name="search-outline"
+                  color={ThemeColors.light}
+                />
+              </TouchableOpacity>
+            </View>
 
             {loading && (
               <View
@@ -517,16 +535,22 @@ const DashboardPortrait = props => {
                 showsVerticalScrollIndicator={false}
                 contentContainerStyle={styles.scrollContent}
               >
-                {employeeList.map((item, index) => (
-                  <EmployeeTile
-                    onItemClick={() => {
-                      selectedEmployeeRef.current = item;
-                      handleItemClick(item);
-                    }}
-                    key={index.toString()}
-                    items={item}
-                  />
-                ))}
+                {employeeList.map((item, index) => {
+                  if (
+                    String(item?.name).trim().toUpperCase().includes(search)
+                  ) {
+                    return (
+                      <EmployeeTile
+                        onItemClick={() => {
+                          selectedEmployeeRef.current = item;
+                          handleItemClick(item);
+                        }}
+                        key={index.toString()}
+                        items={item}
+                      />
+                    );
+                  }
+                })}
               </ScrollView>
             )}
           </View>

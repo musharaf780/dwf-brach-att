@@ -59,6 +59,7 @@ const DashboardLandcape = props => {
   const [showCameraPopup, setShowCameraPopup] = useState(false);
   const selectedEmployeeRef = useRef(null);
   const deviceFront = useCameraDevice('front');
+  const [search, setSearch] = useState('');
 
   const dispatch = useDispatch();
 
@@ -173,17 +174,33 @@ const DashboardLandcape = props => {
         backgroundColor: ThemeColors.white,
         width: '90%',
         flexDirection: 'row',
+        alignItems: 'center',
+        alignSelf: 'center',
         paddingHorizontal: hp('2%'),
         borderRadius: hp('1%'),
-        fontSize: hp('3%'),
+        marginVertical: hp('1%'),
       }}
     >
       <TextInput
+        value={search}
+        onChangeText={setSearch}
         placeholder="Search"
         placeholderTextColor={ThemeColors.light}
-        style={styles.searchInput}
+        style={{
+          flex: 1,
+          fontSize: hp('2%'),
+          color: ThemeColors.dark,
+          paddingVertical: hp('1%'),
+        }}
+        returnKeyType="search"
       />
-      <TouchableOpacity style={styles.searchIcon}>
+      <TouchableOpacity
+        style={{
+          paddingLeft: hp('1%'),
+        }}
+        activeOpacity={0.7}
+        onPress={() => console.log('Search Pressed')}
+      >
         <IoIcon
           size={hp('2.2%')}
           name="search-outline"
@@ -192,7 +209,6 @@ const DashboardLandcape = props => {
       </TouchableOpacity>
     </View>
   );
-
   const capturePhoto = async () => {
     if (isCapturingRef.current) return;
     isCapturingRef.current = true;
@@ -434,6 +450,7 @@ const DashboardLandcape = props => {
 
         <View style={styles.footerButtonsContainer}>
           <TouchableOpacity
+            disabled={loading}
             onPress={() => {
               if (pendingCount === 0) {
                 CheckPendingValidation();
