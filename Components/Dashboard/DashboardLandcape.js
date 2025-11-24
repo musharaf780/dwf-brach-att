@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   AppState,
   Platform,
+  InteractionManager,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -253,78 +254,79 @@ const DashboardLandcape = props => {
     if (isProcessingRef.current) return;
     isProcessingRef.current = true;
 
-    if (!selectedEmployeeRef.current?.id) {
+    const employee = selectedEmployeeRef.current;
+    if (!employee?.id) {
       ShowToast('error', 'Employee', 'No employee selected');
       isProcessingRef.current = false;
       return;
     }
-    try {
-      let employeeId = selectedEmployeeRef.current.id;
-      const currentDate = new Date();
-      const utcDate = new Date(currentDate.toUTCString());
-      const formattedDate = utcDate
-        .toISOString()
-        .slice(0, 19)
-        .replace('T', ' ');
-      const PadNumberWithZeros = num => String(num).padStart(6, '0');
 
-      const manipulateNumber = num => {
-        const numStr = String(num);
-        return numStr.length < 3 ? numStr.padEnd(3, '0') : numStr.slice(0, 3);
-      };
-      const milliseconds = String(currentDate.getMilliseconds()).slice(0, 3);
-      const [formattedDateOnly, formattedTimeOnly] = formattedDate
-        .split(' ')
-        .map(part => part.split(/[-:]/));
+    InteractionManager.runAfterInteractions(async () => {
+      try {
+        const currentDate = new Date();
+        const utcDate = new Date(currentDate.toUTCString());
+        const formattedDate = utcDate
+          .toISOString()
+          .slice(0, 19)
+          .replace('T', ' ');
 
-      const ModifiedUniqueString = `${formattedDateOnly[0]}${
-        formattedDateOnly[1]
-      }${formattedDateOnly[2]}${formattedTimeOnly[0]}${formattedTimeOnly[1]}${
-        formattedTimeOnly[2]
-      }${manipulateNumber(milliseconds)}${PadNumberWithZeros(
-        selectedEmployeeRef.current.id,
-      )}${selectedEmployeeRef.current?.checkIn ? 2 : 1}`;
+        const padZeros = num => String(num).padStart(6, '0');
+        const formatMs = num => String(num).padEnd(3, '0').slice(0, 3);
 
-      const data = {
-        api_call_for: selectedEmployeeRef?.current?.checkIn
-          ? 'checkout'
-          : 'checkin',
-        employee_id: selectedEmployeeRef?.current?.id,
-        add_date_flag: true,
-        attachment: {
-          name: currentDate.toString(),
-          type: 'binary',
-          datas: imageString,
-        },
-        last_sync_seq: ModifiedUniqueString,
-        isPushed: 0,
-        createAt: new Date(),
-      };
+        const [dateParts, timeParts] = formattedDate
+          .split(' ')
+          .map(part => part.split(/[-:]/));
 
-      const insert = await insertAttendanceRecord(data);
+        const ModifiedUniqueString = `${dateParts[0]}${dateParts[1]}${
+          dateParts[2]
+        }${timeParts[0]}${timeParts[1]}${timeParts[2]}${formatMs(
+          currentDate.getMilliseconds(),
+        )}${padZeros(employee.id)}${employee?.checkIn ? 2 : 1}`;
 
-      if (insert) {
-        await toggleEmployeeCheckIn(employeeId);
+        const data = {
+          api_call_for: employee.checkIn ? 'checkout' : 'checkin',
+          employee_id: employee.id,
+          add_date_flag: true,
+          last_sync_seq: ModifiedUniqueString,
+          isPushed: 0,
+          createAt: new Date(),
+          attachment: {
+            name: currentDate.toString(),
+            type: 'binary',
+            datas: imageString, // base64 already small
+          },
+        };
+
+        const [insertResult] = await Promise.all([
+          insertAttendanceRecord(data),
+          new Promise(resolve => setTimeout(resolve, 50)), // yield to UI briefly
+        ]);
+
+        if (insertResult) {
+          Promise.all([
+            toggleEmployeeCheckIn(employee.id),
+            GetTheListFromLocal(),
+          ]);
+
+          setImageString(null);
+          selectedEmployeeRef.current = null;
+          setShowCameraPopup(false);
+          ShowToast(
+            'success',
+            'Attendance session',
+            'Shift saved successfully',
+          );
+        }
+      } catch (error) {
+        console.log('ProceedHandler error:', error);
         setImageString(null);
-
         selectedEmployeeRef.current = null;
-        ShowToast('success', 'Attendance session', 'Shift saved successfully');
         setShowCameraPopup(false);
-        GetTheListFromLocal();
+        ShowToast('error', 'Attendance session', 'Something went wrong');
+      } finally {
+        isProcessingRef.current = false;
       }
-    } catch (error) {
-      setImageString(null);
-
-      selectedEmployeeRef.current = null;
-      ShowToast(
-        'error',
-        'Attandence session',
-        'Something went wrong while saving your shift',
-      );
-      setShowCameraPopup(false);
-    } finally {
-      isProcessingRef.current = false;
-    }
+    });
   };
 
   useEffect(() => {

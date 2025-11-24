@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>DwfBranchAtt</string>
+	<string>DWF Attendance</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -67,17 +67,40 @@
 	<key>UIStatusBarHidden</key>
 	<false/>
 	<key>UIStatusBarStyle</key>
-	<string></string>
+	<string></string>	
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-	</array>
-	<key>UISupportedInterfaceOrientations~ipad</key>
-	<array>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
-		<string>UIInterfaceOrientationPortraitUpsideDown</string>
 	</array>
+<key>NSCalendarsUsageDescription</key>
+<string>This app does not access your calendar. This text is required due to third-party libraries.</string>
+
+<key>NSMotionUsageDescription</key>
+<string>This app does not use motion data. This text is required due to third-party libraries.</string>
+
+<key>NSAppleMusicUsageDescription</key>
+<string>This app does not access your music library. This text is required due to third-party libraries.</string>
+
+<key>NSSpeechRecognitionUsageDescription</key>
+<string>This app does not use speech recognition. This text is required due to third-party libraries.</string>
+
+<key>NSPhotoLibraryUsageDescription</key>
+<string>This app does not access your photo library. This text is required due to third-party libraries.</string>
+
+<key>NSContactsUsageDescription</key>
+<string>This app does not access your contacts. This text is required due to third-party libraries.</string>
+
+	<key>UISupportedInterfaceOrientations~ipad</key>
+	<array>
+		<string>UIInterfaceOrientationPortrait</string>
+		<string>UIInterfaceOrientationPortraitUpsideDown</string>
+		<string>UIInterfaceOrientationLandscapeLeft</string>
+		<string>UIInterfaceOrientationLandscapeRight</string>
+	</array>
+
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
 </dict>
