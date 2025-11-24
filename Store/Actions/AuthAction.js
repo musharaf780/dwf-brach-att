@@ -57,6 +57,7 @@ export const UserLoginAction = info => {
     )
       .then(response => response.json())
       .then(async result => {
+        console.log(JSON.stringify(result))
         if (result.access_token) {
           await saveAuthData(result);
           dispatch({

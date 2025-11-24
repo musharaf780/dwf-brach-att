@@ -26,85 +26,166 @@ const CameraPopupLandscape = ({
   loading,
 }) => {
   return (
-    <Modal visible={visible} animationType="fade" transparent={true}>
-      <View style={styles.overlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.header}>
-            <Heading style={styles.heading} title="Capture Image" />
-          </View>
+    <>
+      {visible && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 9999,
+          }}
+        >
+          <View style={styles.overlay}>
+            <View style={styles.modalContainer}>
+              <View style={styles.header}>
+                <Heading style={styles.heading} title="Capture Image" />
+              </View>
 
-          <View style={styles.content}>{children}</View>
+              <View style={styles.content}>{children}</View>
 
-          <View style={styles.footer}>
-            <>
-              {imageHave ? (
+              <View style={styles.footer}>
                 <>
-                  <AuthButton
-                    loading={loading}
-                    text="Proceed"
-                    style={{
-                      ...styles.captureButton,
-                      backgroundColor: ThemeColors.success,
-                    }}
-                    testStyle={{
-                      color: ThemeColors.secondary,
-                      fontSize: hp('2%'),
-                    }}
-                    onPress={onProceed}
-                  />
-                  <AuthButton
-                    loading={loading}
-                    text="Retake"
-                    style={{ ...styles.captureButton, marginTop: hp('1%') }}
-                    testStyle={{
-                      color: ThemeColors.secondary,
-                      fontSize: hp('2%'),
-                    }}
-                    onPress={onRetake}
-                  />
+                  {imageHave ? (
+                    <>
+                      <AuthButton
+                        loading={loading}
+                        text="Proceed"
+                        style={{
+                          ...styles.captureButton,
+                          backgroundColor: ThemeColors.success,
+                        }}
+                        testStyle={{
+                          color: ThemeColors.secondary,
+                          fontSize: hp('2%'),
+                        }}
+                        onPress={onProceed}
+                      />
+                      <AuthButton
+                        loading={loading}
+                        text="Retake"
+                        style={{ ...styles.captureButton, marginTop: hp('1%') }}
+                        testStyle={{
+                          color: ThemeColors.secondary,
+                          fontSize: hp('2%'),
+                        }}
+                        onPress={onRetake}
+                      />
+                    </>
+                  ) : (
+                    <AuthButton
+                      loading={loading}
+                      text="Capture"
+                      style={styles.captureButton}
+                      testStyle={{
+                        color: ThemeColors.secondary,
+                        fontSize: hp('2%'),
+                      }}
+                      onPress={onCapture}
+                    />
+                  )}
                 </>
-              ) : (
-                <AuthButton
-                  loading={loading}
-                  text="Capture"
-                  style={styles.captureButton}
-                  testStyle={{
-                    color: ThemeColors.secondary,
-                    fontSize: hp('2%'),
-                  }}
-                  onPress={onCapture}
-                />
-              )}
-            </>
 
-            <TouchableOpacity
-              disabled={loading}
-              onPress={onClose}
-              style={{ marginTop: hp('1%'), paddingHorizontal: '30' }}
-            >
-              <Paragraph
-                style={{
-                  color: ThemeColors.danger,
-                  fontWeight: 'bold',
-                  fontSize: hp('1.7%'),
-                }}
-                text="Close"
-              />
-            </TouchableOpacity>
+                <TouchableOpacity
+                  disabled={loading}
+                  onPress={onClose}
+                  style={{ marginTop: hp('1%'), paddingHorizontal: '30' }}
+                >
+                  <Paragraph
+                    style={{
+                      color: ThemeColors.danger,
+                      fontWeight: 'bold',
+                      fontSize: hp('1.7%'),
+                    }}
+                    text="Close"
+                  />
+                </TouchableOpacity>
+              </View>
+            </View>
           </View>
         </View>
-      </View>
-    </Modal>
+      )}
+    </>
+
+    // <Modal visible={visible} animationType="fade" transparent={true}>
+    //   <View style={styles.overlay}>
+    //     <View style={styles.modalContainer}>
+    //       <View style={styles.header}>
+    //         <Heading style={styles.heading} title="Capture Image" />
+    //       </View>
+
+    //       <View style={styles.content}>{children}</View>
+
+    //       <View style={styles.footer}>
+    //         <>
+    //           {imageHave ? (
+    //             <>
+    //               <AuthButton
+    //                 loading={loading}
+    //                 text="Proceed"
+    //                 style={{
+    //                   ...styles.captureButton,
+    //                   backgroundColor: ThemeColors.success,
+    //                 }}
+    //                 testStyle={{
+    //                   color: ThemeColors.secondary,
+    //                   fontSize: hp('2%'),
+    //                 }}
+    //                 onPress={onProceed}
+    //               />
+    //               <AuthButton
+    //                 loading={loading}
+    //                 text="Retake"
+    //                 style={{ ...styles.captureButton, marginTop: hp('1%') }}
+    //                 testStyle={{
+    //                   color: ThemeColors.secondary,
+    //                   fontSize: hp('2%'),
+    //                 }}
+    //                 onPress={onRetake}
+    //               />
+    //             </>
+    //           ) : (
+    //             <AuthButton
+    //               loading={loading}
+    //               text="Capture"
+    //               style={styles.captureButton}
+    //               testStyle={{
+    //                 color: ThemeColors.secondary,
+    //                 fontSize: hp('2%'),
+    //               }}
+    //               onPress={onCapture}
+    //             />
+    //           )}
+    //         </>
+
+    //         <TouchableOpacity
+    //           disabled={loading}
+    //           onPress={onClose}
+    //           style={{ marginTop: hp('1%'), paddingHorizontal: '30' }}
+    //         >
+    //           <Paragraph
+    //             style={{
+    //               color: ThemeColors.danger,
+    //               fontWeight: 'bold',
+    //               fontSize: hp('1.7%'),
+    //             }}
+    //             text="Close"
+    //           />
+    //         </TouchableOpacity>
+    //       </View>
+    //     </View>
+    //   </View>
+    // </Modal>
   );
 };
 
 const styles = StyleSheet.create({
-  overlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
+  overlay: {},
   modalContainer: {
     height: hp('80%'),
     width: wp('40%'),

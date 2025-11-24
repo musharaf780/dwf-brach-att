@@ -48,49 +48,63 @@ const PushRecordsToServerModal = ({ visible }) => {
   });
 
   return (
-    <Modal transparent visible={visible} animationType="none">
-      <View style={styles.backdrop}>
-        <Animated.View
-          style={[
-            styles.container,
-            {
-              transform: [{ translateY: slideAnim }],
-              height: isTablet ? hp('30%') : hp('15%'),
-              justifyContent: 'center',
-            },
-          ]}
+    <>
+      {visible && (
+        <View
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            justifyContent: 'center',
+            alignItems: 'center',
+            backgroundColor: 'rgba(0,0,0,0.4)',
+            zIndex: 9999,
+          }}
         >
-          <View style={{ marginBottom: hp('3%'), alignItems: 'center' }}>
-            <Heading
-              style={isTablet ? styles.branchTextTablet : styles.branchText}
-              title="RECORDS PUSH TO SERVER"
-            />
-            <Paragraph
-              style={{
-                color: ThemeColors.primary,
-                textAlign: 'center',
-                fontSize: isTablet ? hp('3%') : hp('1.5%'),
-              }}
-              text="Please wait until records are pushed to the server."
-            />
-          </View>
-
-          <View style={styles.barBackground}>
+          <View style={styles.backdrop}>
             <Animated.View
-              style={[styles.barFill, { width: widthInterpolate }]}
-            />
+              style={[
+                styles.container,
+                {
+                  transform: [{ translateY: slideAnim }],
+                  height: isTablet ? hp('30%') : hp('15%'),
+                  justifyContent: 'center',
+                },
+              ]}
+            >
+              <View style={{ marginBottom: hp('3%'), alignItems: 'center' }}>
+                <Heading
+                  style={isTablet ? styles.branchTextTablet : styles.branchText}
+                  title="RECORDS PUSH TO SERVER"
+                />
+                <Paragraph
+                  style={{
+                    color: ThemeColors.primary,
+                    textAlign: 'center',
+                    fontSize: isTablet ? hp('3%') : hp('1.5%'),
+                  }}
+                  text="Please wait until records are pushed to the server."
+                />
+              </View>
+
+              <View style={styles.barBackground}>
+                <Animated.View
+                  style={[styles.barFill, { width: widthInterpolate }]}
+                />
+              </View>
+            </Animated.View>
           </View>
-        </Animated.View>
-      </View>
-    </Modal>
+        </View>
+      )}
+    </>
   );
 };
 
 const styles = StyleSheet.create({
   backdrop: {
-    flex: 1,
     justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.3)',
   },
   container: {
     backgroundColor: '#fff',

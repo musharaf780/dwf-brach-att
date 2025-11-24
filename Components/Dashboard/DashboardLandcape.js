@@ -11,6 +11,7 @@ import {
   AppState,
   Platform,
   InteractionManager,
+  Alert,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
@@ -385,6 +386,7 @@ const DashboardLandcape = props => {
     )
       .then(response => response.json())
       .then(result => {
+        console.log(JSON.stringify(result), 'asdfasdf');
         if (result.status === 200) {
           const { pending_records } = result;
           if (pending_records.length === 0) {
