@@ -154,6 +154,7 @@ const DashboardLandcape = props => {
   };
 
   const handleItemClick = async item => {
+    PushRecordToServer(false);
     ExecuteSyncRecord();
     await CheckCameraPermission(item);
   };
