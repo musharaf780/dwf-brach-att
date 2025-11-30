@@ -299,6 +299,8 @@ const DashboardLandcape = props => {
           },
         };
 
+        console.log(JSON.stringify(data));
+
         const [insertResult] = await Promise.all([
           insertAttendanceRecord(data),
           new Promise(resolve => setTimeout(resolve, 50)), // yield to UI briefly

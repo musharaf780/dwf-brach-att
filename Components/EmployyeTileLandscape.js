@@ -42,8 +42,8 @@ const EmployyeTileLandscape = ({ items, onItemClick }) => {
             styles.button,
             {
               backgroundColor: items?.checkIn
-                ? ThemeColors.success
-                : ThemeColors.danger,
+                ? ThemeColors.danger
+                : ThemeColors.success,
             },
           ]}
         >
@@ -57,7 +57,7 @@ const EmployyeTileLandscape = ({ items, onItemClick }) => {
           <View style={styles.buttonLabel}>
             <Paragraph
               style={styles.buttonText}
-              text={items.checkIn ? 'Check In' : 'Check Out'}
+              text={items.checkIn ? 'Check Out' : 'Check In'}
             />
           </View>
         </TouchableOpacity>
