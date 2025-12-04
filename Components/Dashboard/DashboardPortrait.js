@@ -210,6 +210,9 @@ const DashboardPortrait = props => {
             'Shift saved successfully',
           );
         }
+        setTimeout(() => {
+          PushRecordToServer(false);
+        }, 5000);
       } catch (error) {
         console.log('ProceedHandler error:', error);
         setImageString(null);
@@ -363,6 +366,7 @@ const DashboardPortrait = props => {
     } catch (err) {
       console.error('Error fetching attendance records:', err);
     }
+
     setTimeout(() => {
       ExecuteSyncRecord();
     }, 5000);

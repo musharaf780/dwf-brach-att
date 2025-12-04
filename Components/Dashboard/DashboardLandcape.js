@@ -371,6 +371,9 @@ const DashboardLandcape = props => {
     } catch (err) {
       console.error('Error fetching attendance records:', err);
     }
+    setTimeout(() => {
+      ExecuteSyncRecord();
+    }, 5000);
   };
 
   const CheckPendingValidation = () => {
