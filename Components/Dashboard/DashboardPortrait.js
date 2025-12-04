@@ -295,7 +295,10 @@ const DashboardPortrait = props => {
   };
 
   const handleItemClick = async item => {
-    PushRecordToServer(false);
+    if (pendingCount !== 0) {
+      PushRecordToServer(false);
+    }
+
     ExecuteSyncRecord();
     await CheckCameraPermission(item);
   };
@@ -316,6 +319,7 @@ const DashboardPortrait = props => {
     )
       .then(response => response.json())
       .then(result => {
+        console.log(JSON.stringify(result));
         if (result.status === 200) {
           const { pending_records } = result;
           if (pending_records.length === 0) {
@@ -359,6 +363,9 @@ const DashboardPortrait = props => {
     } catch (err) {
       console.error('Error fetching attendance records:', err);
     }
+    setTimeout(() => {
+      ExecuteSyncRecord();
+    }, 5000);
   };
 
   useEffect(() => {
@@ -387,6 +394,7 @@ const DashboardPortrait = props => {
     )
       .then(response => response.json())
       .then(result => {
+        console.log(JSON.stringify(result));
         if (result?.success) {
           ShowToast('success', 'Execute Sync', 'All Records Sync successfully');
         } else {
