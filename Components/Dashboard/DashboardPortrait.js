@@ -190,17 +190,9 @@ const DashboardPortrait = props => {
           },
         };
 
-        const [insertResult] = await Promise.all([
-          insertAttendanceRecord(data),
-          new Promise(resolve => setTimeout(resolve, 50)), // yield to UI briefly
-        ]);
-
+        const insertResult = await insertAttendanceRecord(data);
         if (insertResult) {
-          Promise.all([
-            toggleEmployeeCheckIn(employee.id),
-            GetTheListFromLocal(),
-          ]);
-
+          toggleEmployeeCheckIn(employee.id);
           setImageString(null);
           selectedEmployeeRef.current = null;
           setShowCameraPopup(false);
@@ -210,11 +202,7 @@ const DashboardPortrait = props => {
             'Shift saved successfully',
           );
         }
-        setTimeout(() => {
-          PushRecordToServer(false);
-        }, 5000);
       } catch (error) {
-        console.log('ProceedHandler error:', error);
         setImageString(null);
         selectedEmployeeRef.current = null;
         setShowCameraPopup(false);
@@ -299,7 +287,7 @@ const DashboardPortrait = props => {
 
   const handleItemClick = async item => {
     if (pendingCount !== 0) {
-      PushRecordToServer(false);
+      // PushRecordToServer(false);
     }
 
     ExecuteSyncRecord();
@@ -322,7 +310,6 @@ const DashboardPortrait = props => {
     )
       .then(response => response.json())
       .then(result => {
-        console.log(JSON.stringify(result));
         if (result.status === 200) {
           const { pending_records } = result;
           if (pending_records.length === 0) {

@@ -154,7 +154,7 @@ const DashboardLandcape = props => {
   };
 
   const handleItemClick = async item => {
-    PushRecordToServer(false);
+    // PushRecordToServer(false);
     ExecuteSyncRecord();
     await CheckCameraPermission(item);
   };
@@ -299,19 +299,9 @@ const DashboardLandcape = props => {
           },
         };
 
-        console.log(JSON.stringify(data));
-
-        const [insertResult] = await Promise.all([
-          insertAttendanceRecord(data),
-          new Promise(resolve => setTimeout(resolve, 50)), // yield to UI briefly
-        ]);
-
+        const insertResult = await insertAttendanceRecord(data);
         if (insertResult) {
-          Promise.all([
-            toggleEmployeeCheckIn(employee.id),
-            GetTheListFromLocal(),
-          ]);
-
+          toggleEmployeeCheckIn(employee.id);
           setImageString(null);
           selectedEmployeeRef.current = null;
           setShowCameraPopup(false);
@@ -322,7 +312,6 @@ const DashboardLandcape = props => {
           );
         }
       } catch (error) {
-        console.log('ProceedHandler error:', error);
         setImageString(null);
         selectedEmployeeRef.current = null;
         setShowCameraPopup(false);
@@ -409,7 +398,7 @@ const DashboardLandcape = props => {
         }
       })
       .catch(error =>
-        console.error('Error checking pending validation:', error),
+        console.error('Error checking pending validation:', error)
       );
   };
   useFocusEffect(
