@@ -139,7 +139,6 @@ const DashboardLandcape = props => {
     )
       .then(response => response.json())
       .then(result => {
-        console.log(JSON.stringify(result), 'ExecuteSyncRecord');
         if (result?.success) {
           ShowToast('success', 'Execute Sync', 'All Records Sync successfully');
         } else {
@@ -155,7 +154,7 @@ const DashboardLandcape = props => {
 
   const handleItemClick = async item => {
     // PushRecordToServer(false);
-
+    ExecuteSyncRecord();
     await CheckCameraPermission(item);
   };
 
@@ -337,11 +336,11 @@ const DashboardLandcape = props => {
 
   const [uiRotation, setUiRotation] = useState(90);
 
-  useEffect(() => {
-    if (pendingCount !== 0) {
-      PushRecordToServer(false);
-    }
-  }, [pendingCount]);
+  // useEffect(() => {
+  //   if (pendingCount !== 0) {
+  //     PushRecordToServer(false);
+  //   }
+  // }, [pendingCount]);
 
   const PushRecordToServer = async loader => {
     console.log('TRIGGERR');
@@ -411,6 +410,7 @@ const DashboardLandcape = props => {
   useFocusEffect(
     useCallback(() => {
       PushRecordToServer(false);
+      ExecuteSyncRecord();
 
       const subscription = AppState.addEventListener('change', nextAppState => {
         if (

@@ -375,7 +375,6 @@ const DashboardPortrait = props => {
   }, [pendingCount]);
 
   const ExecuteSyncRecord = () => {
-    console.log('ExecuteSyncRecord');
     const myHeaders = new Headers();
     myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
 
@@ -408,6 +407,7 @@ const DashboardPortrait = props => {
   useFocusEffect(
     useCallback(() => {
       PushRecordToServer(false);
+      ExecuteSyncRecord();
 
       const subscription = AppState.addEventListener('change', nextAppState => {
         if (
