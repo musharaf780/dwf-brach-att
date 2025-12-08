@@ -55,7 +55,7 @@ export const insertPushedAttendanceRecord = (record, success, error) => {
         last_sync_seq,
         isPushed ? 1 : 0,
         createdAt,
-        JSON.stringify(attachment),
+        'attachment',
       ],
       (_, result) => {
         console.log('✅ Record inserted successfully');

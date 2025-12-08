@@ -331,6 +331,7 @@ const DashboardPortrait = props => {
   };
 
   const PushRecordToServer = async loader => {
+    console.log('PushRecordToServer');
     if (pendingCount === 0 && loader) {
       ShowToast(
         'error',
@@ -350,13 +351,12 @@ const DashboardPortrait = props => {
           loader,
         ),
       );
+      setTimeout(() => {
+        ExecuteSyncRecord();
+      }, 5000);
     } catch (err) {
       console.error('Error fetching attendance records:', err);
     }
-
-    setTimeout(() => {
-      ExecuteSyncRecord();
-    }, 5000);
   };
 
   useEffect(() => {
@@ -368,8 +368,14 @@ const DashboardPortrait = props => {
       );
     }
   }, [pendingLoader]);
+  useEffect(() => {
+    if (pendingCount !== 0) {
+      PushRecordToServer(false);
+    }
+  }, [pendingCount]);
 
   const ExecuteSyncRecord = () => {
+    console.log('ExecuteSyncRecord');
     const myHeaders = new Headers();
     myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
 

@@ -155,7 +155,7 @@ const DashboardLandcape = props => {
 
   const handleItemClick = async item => {
     // PushRecordToServer(false);
-    ExecuteSyncRecord();
+
     await CheckCameraPermission(item);
   };
 
@@ -212,6 +212,7 @@ const DashboardLandcape = props => {
       </TouchableOpacity>
     </View>
   );
+
   const capturePhoto = async () => {
     if (isCapturingRef.current) return;
     isCapturingRef.current = true;
@@ -336,6 +337,12 @@ const DashboardLandcape = props => {
 
   const [uiRotation, setUiRotation] = useState(90);
 
+  useEffect(() => {
+    if (pendingCount !== 0) {
+      PushRecordToServer(false);
+    }
+  }, [pendingCount]);
+
   const PushRecordToServer = async loader => {
     console.log('TRIGGERR');
     if (pendingCount === 0 && loader) {
@@ -398,7 +405,7 @@ const DashboardLandcape = props => {
         }
       })
       .catch(error =>
-        console.error('Error checking pending validation:', error)
+        console.error('Error checking pending validation:', error),
       );
   };
   useFocusEffect(
