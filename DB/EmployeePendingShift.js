@@ -133,6 +133,26 @@ export const getUnpushedRecordsCount = (success, error) => {
   });
 };
 
+export const getUnpushedRecords = (success, error) => {
+  db.transaction(tx => {
+    tx.executeSql(
+      `SELECT * FROM attendance_records WHERE isPushed = 0;`,
+      [],
+      (_, result) => {
+        const records = [];
+        for (let i = 0; i < result.rows.length; i++) {
+          records.push(result.rows.item(i));
+        }
+        success && success(records);
+      },
+      (_, err) => {
+        console.log('❌ Fetch unpushed records error:', err.message);
+        error && error(err);
+      },
+    );
+  });
+};
+
 export const markAsPushed = (id, success, error) => {
   db.transaction(tx => {
     tx.executeSql(

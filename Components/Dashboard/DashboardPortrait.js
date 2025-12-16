@@ -344,6 +344,7 @@ const DashboardPortrait = props => {
     try {
       const Data = await getAllAttendanceRecords();
 
+      return;
       dispatch(
         EmployeeDataAction.PendingShiftPostToServerAction(
           loginSuccess.access_token,
