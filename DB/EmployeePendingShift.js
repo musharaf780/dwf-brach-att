@@ -21,7 +21,9 @@ export const initEmployeePendingShiftDB = () => {
         attachment TEXT,  
         last_sync_seq TEXT,
         isPushed INTEGER,
-        createdAt TEXT
+        createdAt TEXT,
+        emp_name TEXT
+
       );`,
       [],
       () => console.log('✅ Table created successfully'),
@@ -45,8 +47,9 @@ export const insertAttendanceRecord = data => {
             attachment,
             last_sync_seq,
             isPushed,
-            createdAt
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
+            createdAt,
+            emp_name
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             data.api_call_for,
             data.employee_id,
@@ -56,6 +59,7 @@ export const insertAttendanceRecord = data => {
             data.last_sync_seq,
             data.isPushed ?? 0,
             new Date().toISOString(),
+            data.emp_name,
           ],
           (_, result) => {
             console.log('✅ Insert attendance success:', result);
@@ -73,7 +77,6 @@ export const insertAttendanceRecord = data => {
     }
   });
 };
-
 export const getAllAttendanceRecords = () => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {

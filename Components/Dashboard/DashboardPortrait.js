@@ -179,6 +179,7 @@ const DashboardPortrait = props => {
         const data = {
           api_call_for: employee.checkIn ? 'checkout' : 'checkin',
           employee_id: employee.id,
+          emp_name: employee.value,
           add_date_flag: true,
           last_sync_seq: ModifiedUniqueString,
           isPushed: 0,
@@ -191,6 +192,7 @@ const DashboardPortrait = props => {
         };
 
         const insertResult = await insertAttendanceRecord(data);
+
         if (insertResult) {
           toggleEmployeeCheckIn(employee.id);
           setImageString(null);
@@ -344,7 +346,6 @@ const DashboardPortrait = props => {
     try {
       const Data = await getAllAttendanceRecords();
 
-      return;
       dispatch(
         EmployeeDataAction.PendingShiftPostToServerAction(
           loginSuccess.access_token,

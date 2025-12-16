@@ -103,11 +103,11 @@ const UserPendingShiftPortrait = props => {
           >
             <Paragraph
               style={{
-                fontSize: hp(2),
+                fontSize: hp(1.5),
                 color: ThemeColors.black,
                 fontWeight: 'bold',
               }}
-              text="Musharaf Ahmed"
+              text={String(item.emp_name).slice(0, 23)}
             />
 
             <Paragraph
@@ -125,7 +125,7 @@ const UserPendingShiftPortrait = props => {
                     : ThemeColors.success,
                 fontWeight: 'bold',
               }}
-              text={item.api_call_for}
+              text={String(item?.api_call_for).toUpperCase()}
             />
           </View>
         </View>
@@ -192,28 +192,42 @@ const UserPendingShiftPortrait = props => {
         }}
       >
         <View style={{ height: '100%', width: '100%' }}>
-          <FlatList
-            ListEmptyComponent={() => {
-              return (
-                <View
-                  style={{
-                    height: '100%',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                  }}
-                >
-                  <ActivityIndicator
-                    size={'large'}
-                    color={ThemeColors.primary}
-                  />
-                </View>
-              );
-            }}
-            data={pendingShifts}
-            renderItem={itemData => {
-              return <PendingListTile item={itemData.item} />;
-            }}
-          />
+          {loading && (
+            <View
+              style={{
+                height: '100%',
+                width: '100%',
+                justifyContent: 'center',
+              }}
+            >
+              <ActivityIndicator color={ThemeColors.primary} size={'large'} />
+            </View>
+          )}
+
+          {!loading && (
+            <FlatList
+              ListEmptyComponent={() => {
+                return (
+                  <View
+                    style={{
+                      height: hp(60),
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Paragraph
+                      style={{ fontSize: hp(1.5), color: ThemeColors.black }}
+                      text="You have no pending shifts."
+                    />
+                  </View>
+                );
+              }}
+              data={pendingShifts}
+              renderItem={itemData => {
+                return <PendingListTile item={itemData.item} />;
+              }}
+            />
+          )}
         </View>
       </View>
     </SafeAreaView>
