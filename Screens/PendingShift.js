@@ -1,4 +1,5 @@
 import UserPendingShiftPortrait from '../Components/Dashboard/PendingShifts/UserPendingShiftPortrait';
+import UserPendingShiftLandscape from '../Components/Dashboard/PendingShifts/UserPendingShiftLandscape';
 import { useSelector } from 'react-redux';
 import * as AuthAction from '../Store/Actions/AuthAction';
 import { View, Text } from 'react-native';
@@ -8,29 +9,10 @@ const PendingShift = props => {
   const { isTablet } = useSelector(state => state.auth);
   const dispatch = useDispatch();
 
-  return (
-    <UserPendingShiftPortrait onGoBack={() => props.navigation.goBack()} />
-  );
   return isTablet ? (
-    <DashboardLandcape
-      logoutPress={() => {
-        dispatch(AuthAction.UserLogoutAction());
-        props.navigation.replace('LoginScreen');
-      }}
-      onNavigate={() => {
-        props.navigation.replace('LoginScreen');
-      }}
-    />
+    <UserPendingShiftLandscape onGoBack={() => props.navigation.goBack()} />
   ) : (
-    <DashboardPortrait
-      logoutPress={() => {
-        dispatch(AuthAction.UserLogoutAction());
-        props.navigation.replace('LoginScreen');
-      }}
-      onNavigate={() => {
-        props.navigation.replace('LoginScreen');
-      }}
-    />
+    <UserPendingShiftPortrait onGoBack={() => props.navigation.goBack()} />
   );
 };
 

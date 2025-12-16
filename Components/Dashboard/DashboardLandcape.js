@@ -288,6 +288,7 @@ const DashboardLandcape = props => {
         const data = {
           api_call_for: employee.checkIn ? 'checkout' : 'checkin',
           employee_id: employee.id,
+          emp_name: employee.value,
           add_date_flag: true,
           last_sync_seq: ModifiedUniqueString,
           isPushed: 0,
@@ -442,10 +443,13 @@ const DashboardLandcape = props => {
         </View>
 
         <View style={styles.statsContainer}>
-          <View style={styles.statBox}>
+          <TouchableOpacity
+            onPress={props.onPendingPress}
+            style={styles.statBox}
+          >
             <Paragraph style={styles.statPendingTitle} text="Pending Shift" />
             <Paragraph style={styles.statPendingValue} text={pendingCount} />
-          </View>
+          </TouchableOpacity>
 
           {/* Pushed Shift */}
           <View style={styles.statBoxAlt}>

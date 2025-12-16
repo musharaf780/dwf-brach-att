@@ -11,6 +11,7 @@ const SplashScreen = props => {
 
   return isTablet ? (
     <DashboardLandcape
+      onPendingPress={() => props.navigation.navigate('PendingShift')}
       logoutPress={() => {
         dispatch(AuthAction.UserLogoutAction());
         props.navigation.replace('LoginScreen');

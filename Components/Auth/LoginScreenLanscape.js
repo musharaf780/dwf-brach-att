@@ -27,8 +27,8 @@ const LoginScreenLandscape = props => {
   const [secure, setSecure] = useState(false);
   const dispatch = useDispatch();
   const [formfields, setFormfields] = useState({
-    email: '',
-    password: '',
+    email: 'shaheedpms@dwf.com.sa',
+    password: 'DwF@1610',
   });
 
   const LoginHandler = () => {
