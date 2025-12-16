@@ -488,14 +488,17 @@ const DashboardPortrait = props => {
           </View>
 
           <View style={styles.statsRow}>
-            <View style={styles.statCard}>
+            <TouchableOpacity
+              onPress={props.onPendingPress}
+              style={styles.statCard}
+            >
               <View style={styles.statLeft}>
                 <Paragraph style={styles.statTitle} text={`Pending\nShift`} />
               </View>
               <View style={styles.statRight}>
                 <Paragraph style={styles.statValue} text={`${pendingCount}`} />
               </View>
-            </View>
+            </TouchableOpacity>
 
             <View style={styles.statCard}>
               <View style={styles.statLeft}>
