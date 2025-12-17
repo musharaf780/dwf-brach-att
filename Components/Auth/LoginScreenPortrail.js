@@ -30,8 +30,8 @@ const LoginScreenPortrail = props => {
   const dispatch = useDispatch();
 
   const [formfields, setFormfields] = useState({
-    email: 'shaheedpms@dwf.com.sa',
-    password: 'DwF@1610',
+    email: '',
+    password: '',
   });
 
   const LoginHandler = () => {

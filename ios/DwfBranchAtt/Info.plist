@@ -32,11 +32,9 @@
 		<true/>
 	</dict>
 	<key>NSCameraUsageDescription</key>
-	<string>This app requires access to your camera to capture photos and videos.</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
-	<key>NSMicrophoneUsageDescription</key>
-	<string>This app requires access to your microphone to record videos with audio.</string>
+	<string>DWF Workforce requires access to your camera to take your selfie so we can authenticate your attendance.</string>
+
+
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>
@@ -75,23 +73,6 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-<key>NSCalendarsUsageDescription</key>
-<string>This app does not access your calendar. This text is required due to third-party libraries.</string>
-
-<key>NSMotionUsageDescription</key>
-<string>This app does not use motion data. This text is required due to third-party libraries.</string>
-
-<key>NSAppleMusicUsageDescription</key>
-<string>This app does not access your music library. This text is required due to third-party libraries.</string>
-
-<key>NSSpeechRecognitionUsageDescription</key>
-<string>This app does not use speech recognition. This text is required due to third-party libraries.</string>
-
-<key>NSPhotoLibraryUsageDescription</key>
-<string>This app does not access your photo library. This text is required due to third-party libraries.</string>
-
-<key>NSContactsUsageDescription</key>
-<string>This app does not access your contacts. This text is required due to third-party libraries.</string>
 
 	<key>UISupportedInterfaceOrientations~ipad</key>
 	<array>
