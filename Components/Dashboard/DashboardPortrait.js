@@ -441,8 +441,13 @@ const DashboardPortrait = props => {
           <View style={styles.topRow}>
             <View style={styles.logoContainer}>
               <Image
-                style={styles.logoImage}
-                source={require('../../Assets/Images/dwflogo.jpg')}
+                style={{
+                  height: hp(10),
+                  width: wp(10),
+                  resizeMode: 'contain',
+                  borderRadius: wp(1),
+                }}
+                source={require('../../Assets/Images/logo.png')}
               />
             </View>
 

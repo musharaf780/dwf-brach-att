@@ -41,6 +41,7 @@ import CameraPopupLandscape from './CameraPopup/CameraPopupLandscape';
 import { ShowToast } from '../ShowToast';
 import PushRecordsToServerModal from '../PushRecordsToServerModal';
 import ApiConstants from '../../Constants/ApiConstants';
+import DeviceInfo from 'react-native-device-info';
 const DashboardLandcape = props => {
   const { loginSuccess, userInformation } = useSelector(state => state.auth);
   const {
@@ -434,7 +435,10 @@ const DashboardLandcape = props => {
       {/* Left Sidebar */}
       <View style={styles.sidebarContainer}>
         <View style={styles.logoWrapper}>
-          <Image source={require('../../Assets/Images/dwflogo.jpg')} />
+          <Image
+            style={{ height: hp(10), width: wp(10), resizeMode: 'contain', borderRadius: wp(1),  }}
+            source={require('../../Assets/Images/logo.png')}
+          />
         </View>
 
         <View style={styles.welcomeWrapper}>
@@ -496,6 +500,10 @@ const DashboardLandcape = props => {
             />
             <Paragraph style={styles.footerButtonText} text="Logout" />
           </TouchableOpacity>
+          <Paragraph
+            style={{ fontSize: hp(1.5), textAlign: 'center' }}
+            text={`Version ${DeviceInfo.getVersion()}`}
+          />
         </View>
       </View>
 
@@ -673,6 +681,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginTop: hp('2%'),
+    borderRadius: 10,
+    overflow: 'hidden',
   },
   welcomeWrapper: {
     paddingHorizontal: '2%',
