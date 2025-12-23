@@ -39,6 +39,7 @@ import {
   getUnpushedRecordsCount,
   getAllAttendanceRecords,
 } from '../../DB/EmployeePendingShift';
+import DeviceInfo from 'react-native-device-info';
 import { getPushedRecordsCount } from '../../DB/EmployeePushedShifts';
 import { ShowToast } from '../ShowToast';
 import ApiConstants from '../../Constants/ApiConstants';
@@ -451,6 +452,10 @@ const DashboardPortrait = props => {
                 <Paragraph
                   style={styles.branchText}
                   text={userInformation?.name}
+                />
+                <Paragraph
+                  style={{ fontSize: hp(0.8) }}
+                  text={`Version ${DeviceInfo.getVersion()}`}
                 />
               </View>
             </View>

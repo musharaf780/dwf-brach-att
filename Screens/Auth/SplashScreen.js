@@ -22,10 +22,10 @@ const SplashScreen = props => {
     try {
       const check = await checkVersion({
         version: DeviceInfo.getVersion(), // app local version
-        iosStoreURL: 'https://apps.apple.com/us/app/dwf/id6444727285',
+        iosStoreURL: 'https://apps.apple.com/us/app/dwf-workforce/id6754880336',
         androidStoreURL:
           'https://play.google.com/store/apps/details?id=com.dwfbranchatt',
-        country: 'jp', // default value is 'jp'
+        country: 'jp',
       });
 
       if (check.result === 'new') {
