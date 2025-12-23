@@ -42,6 +42,7 @@ import { ShowToast } from '../ShowToast';
 import PushRecordsToServerModal from '../PushRecordsToServerModal';
 import ApiConstants from '../../Constants/ApiConstants';
 import DeviceInfo from 'react-native-device-info';
+import NetInfo from '@react-native-community/netinfo';
 const DashboardLandcape = props => {
   const { loginSuccess, userInformation } = useSelector(state => state.auth);
   const {
@@ -105,6 +106,15 @@ const DashboardLandcape = props => {
       } else {
         ShowToast('error', 'Camera', 'Camera permission not granted');
       }
+    }
+  };
+  const checkInternet = async () => {
+    try {
+      const state = await NetInfo.fetch();
+      return state.isConnected; // true or false
+    } catch (error) {
+      console.log('Error checking internet:', error);
+      return false;
     }
   };
 
@@ -436,7 +446,12 @@ const DashboardLandcape = props => {
       <View style={styles.sidebarContainer}>
         <View style={styles.logoWrapper}>
           <Image
-            style={{ height: hp(10), width: wp(10), resizeMode: 'contain', borderRadius: wp(1),  }}
+            style={{
+              height: hp(10),
+              width: wp(10),
+              resizeMode: 'contain',
+              borderRadius: wp(1),
+            }}
             source={require('../../Assets/Images/logo.png')}
           />
         </View>
@@ -465,15 +480,24 @@ const DashboardLandcape = props => {
         <View style={styles.footerButtonsContainer}>
           <TouchableOpacity
             disabled={loading}
-            onPress={() => {
-              if (pendingCount === 0) {
-                CheckPendingValidation();
-              } else {
+            onPress={async () => {
+              const isOnline = await checkInternet();
+              if (!isOnline) {
                 ShowToast(
                   'error',
-                  'App Validation',
-                  'You need to push all your existing sessions before syncing the employee list.',
+                  'Internet Connection',
+                  'Your device has no or weak internet connection',
                 );
+              } else {
+                if (pendingCount === 0) {
+                  CheckPendingValidation();
+                } else {
+                  ShowToast(
+                    'error',
+                    'App Validation',
+                    'You need to push all your existing sessions before syncing the employee list.',
+                  );
+                }
               }
             }}
             style={styles.footerButton}
@@ -586,8 +610,17 @@ const DashboardLandcape = props => {
 
             <View style={styles.bottomContainer}>
               <TouchableOpacity
-                onPress={() => {
-                  PushRecordToServer(true);
+                onPress={async () => {
+                  const isOnline = await checkInternet();
+                  if (!isOnline) {
+                    ShowToast(
+                      'error',
+                      'Internet Connection',
+                      'Your device has no or weak internet connection',
+                    );
+                  } else {
+                    PushRecordToServer(true);
+                  }
                 }}
                 style={styles.bottomBar}
               >

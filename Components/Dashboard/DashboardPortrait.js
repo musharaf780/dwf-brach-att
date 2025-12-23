@@ -44,7 +44,7 @@ import { getPushedRecordsCount } from '../../DB/EmployeePushedShifts';
 import { ShowToast } from '../ShowToast';
 import ApiConstants from '../../Constants/ApiConstants';
 import PushRecordsToServerModal from '../PushRecordsToServerModal';
-
+import NetInfo from '@react-native-community/netinfo';
 const DashboardPortrait = props => {
   const { loginSuccess, userInformation } = useSelector(state => state.auth);
   const {
@@ -141,6 +141,16 @@ const DashboardPortrait = props => {
       console.log('Error capturing photo:', error);
     } finally {
       isCapturingRef.current = false;
+    }
+  };
+
+  const checkInternet = async () => {
+    try {
+      const state = await NetInfo.fetch();
+      return state.isConnected; // true or false
+    } catch (error) {
+      console.log('Error checking internet:', error);
+      return false;
     }
   };
 
@@ -467,15 +477,24 @@ const DashboardPortrait = props => {
 
             <View style={styles.iconContainer}>
               <TouchableOpacity
-                onPress={() => {
-                  if (pendingCount === 0) {
-                    CheckPendingValidation();
-                  } else {
+                onPress={async () => {
+                  const isOnline = await checkInternet();
+                  if (!isOnline) {
                     ShowToast(
                       'error',
-                      'App Validation',
-                      'You need to push all your existing sessions before syncing the employee list.',
+                      'Internet Connection',
+                      'Your device has no or weak internet connection',
                     );
+                  } else {
+                    if (pendingCount === 0) {
+                      CheckPendingValidation();
+                    } else {
+                      ShowToast(
+                        'error',
+                        'App Validation',
+                        'You need to push all your existing sessions before syncing the employee list.',
+                      );
+                    }
                   }
                 }}
                 style={styles.iconButton}
@@ -579,8 +598,17 @@ const DashboardPortrait = props => {
           </View>
 
           <TouchableOpacity
-            onPress={() => {
-              PushRecordToServer(true);
+            onPress={async () => {
+              const isOnline = await checkInternet();
+              if (!isOnline) {
+                ShowToast(
+                  'error',
+                  'Internet Connection',
+                  'Your device has no or weak internet connection',
+                );
+              } else {
+                PushRecordToServer(true);
+              }
             }}
             style={styles.bottomBar}
           >
