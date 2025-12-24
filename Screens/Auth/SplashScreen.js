@@ -29,7 +29,7 @@ const SplashScreen = props => {
       });
 
       if (check.result === 'new') {
-        // setUpdateModal(true);
+        setUpdateModal(true);
       }
     } catch (e) {
       console.log(e);

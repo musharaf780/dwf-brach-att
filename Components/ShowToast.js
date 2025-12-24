@@ -6,7 +6,7 @@ export const ShowToast = (type, text1, text2) => {
     type,
     text1,
     text2,
-    position: 'bottom',
+    position: 'top',
     visibilityTime: 1500,
   });
 };
