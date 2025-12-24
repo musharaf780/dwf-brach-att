@@ -8,6 +8,11 @@ const db = SQLite.openDatabase(
   () => console.log('✅ Employee Shift DB Connected'),
   error => console.log('❌ Database error: ' + error),
 );
+const getYesterdayDate = () => {
+  const d = new Date();
+  d.setDate(d.getDate() - 1);
+  return d.toISOString().slice(0, 10);
+};
 export const initializeEmployeePushedShiftTable = () => {
   db.transaction(tx => {
     tx.executeSql(
@@ -37,9 +42,9 @@ export const insertPushedAttendanceRecord = (record, success, error) => {
     add_date_flag,
     last_sync_seq,
     isPushed,
-    createdAt,
     attachment,
   } = record;
+  const createdAt = new Date().toISOString();
 
   db.transaction(tx => {
     tx.executeSql(
@@ -92,16 +97,42 @@ export const getAllAttendanceRecords = (success, error) => {
 };
 
 export const getPushedRecordsCount = (success, error) => {
+  const today = new Date().toISOString().slice(0, 10); // "YYYY-MM-DD"
+
   db.transaction(tx => {
     tx.executeSql(
-      `SELECT COUNT(*) as total FROM attendance_records WHERE isPushed = 0;`,
-      [],
+      `
+      SELECT COUNT(*) as total
+      FROM attendance_records
+      WHERE substr(createdAt, 1, 10) = ?;
+      `,
+      [today],
       (_, result) => {
         const count = result.rows.item(0).total;
         success && success(count);
       },
       (_, err) => {
-        console.log('❌ Count query error: ' + err.message);
+        console.log('❌ Today created count error: ' + err.message);
+        error && error(err);
+      },
+    );
+  });
+};
+
+export const getPushedRecords = (success, error) => {
+  db.transaction(tx => {
+    tx.executeSql(
+      `SELECT * FROM attendance_records WHERE isPushed = 0;`,
+      [],
+      (_, result) => {
+        const rows = [];
+        for (let i = 0; i < result.rows.length; i++) {
+          rows.push(result.rows.item(i));
+        }
+        success && success(rows);
+      },
+      (_, err) => {
+        console.log('❌ Fetch query error: ' + err.message);
         error && error(err);
       },
     );

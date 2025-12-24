@@ -40,7 +40,10 @@ import {
   getAllAttendanceRecords,
 } from '../../DB/EmployeePendingShift';
 import DeviceInfo from 'react-native-device-info';
-import { getPushedRecordsCount } from '../../DB/EmployeePushedShifts';
+import {
+  getPushedRecords,
+  getPushedRecordsCount,
+} from '../../DB/EmployeePushedShifts';
 import { ShowToast } from '../ShowToast';
 import ApiConstants from '../../Constants/ApiConstants';
 import PushRecordsToServerModal from '../PushRecordsToServerModal';
@@ -194,7 +197,7 @@ const DashboardPortrait = props => {
           add_date_flag: true,
           last_sync_seq: ModifiedUniqueString,
           isPushed: 0,
-          createAt: new Date(),
+          createAt: '2025-12-20 08:45:16',
           attachment: {
             name: currentDate.toString(),
             type: 'binary',
