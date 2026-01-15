@@ -38,6 +38,7 @@ export const initEmployeeDB = () => {
     );
   });
 };
+
 export const insertEmployeeList = records => {
   if (!Array.isArray(records)) {
     console.log('❌ Expected an array of records');
@@ -46,35 +47,48 @@ export const insertEmployeeList = records => {
 
   db.transaction(
     tx => {
+      const ids = records.map(r => r.id);
+
+      if (ids.length > 0) {
+        tx.executeSql(
+          `DELETE FROM employees WHERE id NOT IN (${ids
+            .map(() => '?')
+            .join(',')})`,
+          ids,
+        );
+      } else {
+        tx.executeSql(`DELETE FROM employees`);
+      }
+
       records.forEach(record => {
         tx.executeSql(
           `INSERT OR REPLACE INTO employees (
-          id,
-          allow_chkin_outzone,
-          allow_chkout_outzone,
-          allow_in_branch_att,
-          branch_outlet_id,
-          company_branch_id,
-          company_id,
-          curr_geoatt_id,
-          curr_geobv_id,
-          curr_geosess_id,
-          department_id,
-          geolocation_hr_attendance,
-          is_geobv_active,
-          is_geosess_active,
-          latest_attendance,
-          latest_session,
-          name,
-          need_bv_face_tracking_att,
-          need_face_tracking_att,
-          need_live_tracking_att,
-          partner_id,
-          user_id,
-          value,
-          image,
-          checkIn
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)`,
+            id,
+            allow_chkin_outzone,
+            allow_chkout_outzone,
+            allow_in_branch_att,
+            branch_outlet_id,
+            company_branch_id,
+            company_id,
+            curr_geoatt_id,
+            curr_geobv_id,
+            curr_geosess_id,
+            department_id,
+            geolocation_hr_attendance,
+            is_geobv_active,
+            is_geosess_active,
+            latest_attendance,
+            latest_session,
+            name,
+            need_bv_face_tracking_att,
+            need_face_tracking_att,
+            need_live_tracking_att,
+            partner_id,
+            user_id,
+            value,
+            image,
+            checkIn
+          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
           [
             record.id,
             record.allow_chkin_outzone ? 1 : 0,
@@ -102,13 +116,11 @@ export const insertEmployeeList = records => {
             record?.image ? record.image : null,
             record.checkIn ? 1 : 0,
           ],
-          null,
-          (_, error) => console.log('❌ Insert error:', error.message),
         );
       });
     },
     error => console.log('❌ Transaction error:', error.message),
-    () => console.log('✅ All records inserted successfully'),
+    () => console.log('✅ Employees table synced successfully'),
   );
 };
 

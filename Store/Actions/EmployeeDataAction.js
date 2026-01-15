@@ -38,13 +38,15 @@ export const EmployeeListDataAction = token => {
       const myHeaders = new Headers();
       myHeaders.append('Authorization', `Bearer ${token}`);
 
+      console.log(
+        `${ApiConstants.BaseUrl}/user/fetch_subordinates?db=${ApiConstants.DatabaseName}`,
+      );
       const response = await fetch(
         `${ApiConstants.BaseUrl}/user/fetch_subordinates?db=${ApiConstants.DatabaseName}`,
         { method: 'GET', headers: myHeaders, redirect: 'follow' },
       );
 
       const result = await response.json();
-      console.log(JSON.stringify(result));
 
       if (result.status === 200 && Array.isArray(result?.sub_employees)) {
         let list = result.sub_employees;
@@ -56,6 +58,7 @@ export const EmployeeListDataAction = token => {
           }
         }
 
+        console.log(JSON.stringify(list), 'listlist');
         insertEmployeeList(list);
         await dispatch(GetAllEmployeeFromLocalDB());
       } else {
