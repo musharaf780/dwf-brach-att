@@ -25,11 +25,10 @@ const SplashScreen = props => {
         iosStoreURL: 'https://apps.apple.com/us/app/dwf-workforce/id6754880336',
         androidStoreURL:
           'https://play.google.com/store/apps/details?id=com.dwfbranchatt',
-        country: 'jp',
       });
 
       if (check.result === 'new') {
-        setUpdateModal(true);
+        // setUpdateModal(true);
       }
     } catch (e) {
       console.log(e);
