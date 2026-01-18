@@ -35,7 +35,7 @@ const UpdateAppMopup = ({ visible = true }) => {
               setTimeout(() => {
                 openUrl(
                   'https://play.google.com/store/apps/details?id=com.dwfbranchatt',
-                  'https://apps.apple.com/us/app/dwf/id6444727285',
+                  'https://apps.apple.com/us/app/dwf-workforce/id6754880336',
                 );
               }, 2000);
             }}

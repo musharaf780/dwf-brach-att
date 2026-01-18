@@ -22,14 +22,13 @@ const SplashScreen = props => {
     try {
       const check = await checkVersion({
         version: DeviceInfo.getVersion(),
-        iosStoreURL: 'https://apps.apple.com/app/id6754880336',
-        iosAppId: '6754880336',
+        iosStoreURL: 'https://apps.apple.com/us/app/dwf-workforce/id6754880336',
         androidStoreURL:
           'https://play.google.com/store/apps/details?id=com.dwfbranchatt',
       });
 
       if (check.result === 'new') {
-        // setUpdateModal(true);
+        setUpdateModal(true);
       }
     } catch (e) {
       console.log(e);
