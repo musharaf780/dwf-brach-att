@@ -7,6 +7,7 @@ import * as AuthAction from '../../Store/Actions/AuthAction';
 import checkVersion from 'react-native-store-version';
 import DeviceInfo from 'react-native-device-info';
 import UpdateAppMopup from '../../Components/UpdateAppMopup';
+import UpdateAppPopUpLand from '../../Components/UpdateAppPopUpLand';
 const SplashScreen = props => {
   const { isTablet, loginSuccess } = useSelector(state => state.auth);
 
@@ -52,7 +53,7 @@ const SplashScreen = props => {
           }
         }}
       />
-      {updateModal && <UpdateAppMopup />}
+      {updateModal && <UpdateAppPopUpLand />}
     </>
   ) : (
     <>
