@@ -21,8 +21,9 @@ const SplashScreen = props => {
   const CheckVersion = async () => {
     try {
       const check = await checkVersion({
-        version: DeviceInfo.getVersion(), // app local version
-        iosStoreURL: 'https://apps.apple.com/us/app/dwf-workforce/id6754880336',
+        version: DeviceInfo.getVersion(),
+        iosStoreURL: 'https://apps.apple.com/app/id6754880336',
+        iosAppId: '6754880336',
         androidStoreURL:
           'https://play.google.com/store/apps/details?id=com.dwfbranchatt',
       });

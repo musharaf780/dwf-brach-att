@@ -51,13 +51,23 @@ export const UserLoginAction = info => {
     };
 
     fetch(
-      `${ApiConstants.BaseUrl}/authentication/oauth2/token?client_id=${ApiConstants.Client_id}&client_secret=${ApiConstants.Client_secret}&username=${info.email}&password=${info.password}&password_type=request-body&grant_type=password&login_type=${Type}&db=${ApiConstants.DatabaseName}`,
+      `${ApiConstants.BaseUrl}/authentication/oauth2/token?client_id=${
+        ApiConstants.Client_id
+      }&client_secret=${ApiConstants.Client_secret}&${
+        Type === 'user'
+          ? `username=${info.email?.trim()}`
+          : `iqama_no=${info.email}`
+      }&password=${
+        info.password
+      }&password_type=request-body&grant_type=password&login_type=${
+        Type === 'user' ? 'user' : 'iqama'
+      }&db=${ApiConstants.DatabaseName}`,
 
       requestOptions,
     )
       .then(response => response.json())
       .then(async result => {
-        console.log(JSON.stringify(result))
+        console.log(JSON.stringify(result));
         if (result.access_token) {
           await saveAuthData(result);
           dispatch({

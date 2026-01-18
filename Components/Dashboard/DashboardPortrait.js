@@ -469,7 +469,7 @@ const DashboardPortrait = props => {
                 <Paragraph style={styles.welcomeText} text="Welcome," />
                 <Paragraph
                   style={styles.branchText}
-                  text={userInformation?.name}
+                  text={String(userInformation?.name)?.slice(0, 15)}
                 />
                 <Paragraph
                   style={{ fontSize: hp(0.8) }}
