@@ -41,6 +41,16 @@ const SplashScreen = props => {
     CheckVersion();
   }, []);
 
+  useEffect(() => {
+    if (!updateModal) return;
+
+    const timer = setTimeout(() => {
+      setUpdateModal(false);
+    }, 20000);
+
+    return () => clearTimeout(timer);
+  }, [updateModal]);
+
   return isTablet ? (
     <>
       <LandscapeLayout
