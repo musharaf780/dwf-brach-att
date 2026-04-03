@@ -37,10 +37,6 @@ export const EmployeeListDataAction = token => {
 
       const myHeaders = new Headers();
       myHeaders.append('Authorization', `Bearer ${token}`);
-
-      console.log(
-        `${ApiConstants.BaseUrl}/user/fetch_subordinates?db=${ApiConstants.DatabaseName}`,
-      );
       const response = await fetch(
         `${ApiConstants.BaseUrl}/user/fetch_subordinates?db=${ApiConstants.DatabaseName}`,
         { method: 'GET', headers: myHeaders, redirect: 'follow' },

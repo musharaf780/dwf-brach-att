@@ -48,6 +48,14 @@ import { ShowToast } from '../ShowToast';
 import ApiConstants from '../../Constants/ApiConstants';
 import PushRecordsToServerModal from '../PushRecordsToServerModal';
 import NetInfo from '@react-native-community/netinfo';
+import { loadTensorflowModel } from 'react-native-fast-tflite';
+import { Buffer } from 'buffer';
+
+const base64ToUint8Array = base64 => {
+  const binary = Buffer.from(base64, 'base64');
+  return new Uint8Array(binary);
+};
+
 const DashboardPortrait = props => {
   const { loginSuccess, userInformation } = useSelector(state => state.auth);
   const {
@@ -86,26 +94,8 @@ const DashboardPortrait = props => {
     GetTheListFromLocal();
   }, [employeeList]);
 
-  const SearchTile = () => (
-    <View style={styles.searchContainer}>
-      <TextInput
-        value={search}
-        onChangeText={text => {
-          setSearch(text);
-        }}
-        placeholder="Search"
-        placeholderTextColor={ThemeColors.light}
-        style={styles.searchInput}
-      />
-      <TouchableOpacity style={styles.searchIcon}>
-        <IoIcon
-          size={hp('2.2%')}
-          name="search-outline"
-          color={ThemeColors.light}
-        />
-      </TouchableOpacity>
-    </View>
-  );
+
+
 
   const capturePhoto = async () => {
     if (isCapturingRef.current) return;
@@ -184,11 +174,10 @@ const DashboardPortrait = props => {
           .split(' ')
           .map(part => part.split(/[-:]/));
 
-        const ModifiedUniqueString = `${dateParts[0]}${dateParts[1]}${
-          dateParts[2]
-        }${timeParts[0]}${timeParts[1]}${timeParts[2]}${formatMs(
-          currentDate.getMilliseconds(),
-        )}${padZeros(employee.id)}${employee?.checkIn ? 2 : 1}`;
+        const ModifiedUniqueString = `${dateParts[0]}${dateParts[1]}${dateParts[2]
+          }${timeParts[0]}${timeParts[1]}${timeParts[2]}${formatMs(
+            currentDate.getMilliseconds(),
+          )}${padZeros(employee.id)}${employee?.checkIn ? 2 : 1}`;
 
         const data = {
           api_call_for: employee.checkIn ? 'checkout' : 'checkin',
@@ -441,6 +430,9 @@ const DashboardPortrait = props => {
     }, []),
   );
 
+
+  console.log(JSON.stringify(employeeList), "employeeList")
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar
@@ -586,9 +578,20 @@ const DashboardPortrait = props => {
                   ) {
                     return (
                       <EmployeeTile
-                        onItemClick={() => {
-                          selectedEmployeeRef.current = item;
-                          handleItemClick(item);
+                        onItemClick={async () => {
+
+                          const modelPath =
+                            '../../Assets/mobilefacenet.tflite';
+                          const model = await loadTensorflowModel(modelPath);
+                          const cleanBase64 = item.image.replace(
+                            /^data:image\/\w+;base64,/,
+                            '',
+                          );
+                          const imageBytes = base64ToUint8Array(cleanBase64);
+                          const embeddings = await model.run(imageBytes);
+                          console.log(embeddings, 'embeddings');
+                          // selectedEmployeeRef.current = item;
+                          // handleItemClick(item);
                         }}
                         key={index.toString()}
                         items={item}
