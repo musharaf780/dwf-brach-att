@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "229256608065",
+    "project_id": "dwf-work-force",
+    "storage_bucket": "dwf-work-force.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:229256608065:android:c9729d7b5dc7834c54c9c0",
+        "android_client_info": {
+          "package_name": "com.dwfbranchatt"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyxpfOpdNSVXAgevYx7wlPP6Y8tl6KEoE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

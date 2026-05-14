@@ -8,6 +8,7 @@ import checkVersion from 'react-native-store-version';
 import DeviceInfo from 'react-native-device-info';
 import UpdateAppMopup from '../../Components/UpdateAppMopup';
 import UpdateAppPopUpLand from '../../Components/UpdateAppPopUpLand';
+import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
 const SplashScreen = props => {
   const { isTablet, loginSuccess } = useSelector(state => state.auth);
 
@@ -36,9 +37,28 @@ const SplashScreen = props => {
     }
   };
 
+  const requestNotificationPermission = async () => {
+    if (Platform.OS !== 'android' || Platform.Version < 33) return;
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.POST_NOTIFICATIONS,
+    );
+    console.log('Notification permission result:', granted);
+    if (granted === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+      Alert.alert(
+        'Notification Permission',
+        'Notifications are blocked. Please enable them in settings.',
+        [
+          { text: 'Cancel', style: 'cancel' },
+          { text: 'Open Settings', onPress: () => Linking.openSettings() },
+        ],
+      );
+    }
+  };
+
   useEffect(() => {
     GetUserData();
     CheckVersion();
+    requestNotificationPermission();
   }, []);
 
   useEffect(() => {
