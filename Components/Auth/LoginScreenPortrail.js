@@ -31,7 +31,7 @@ const LoginScreenPortrail = props => {
 
   // dammamroad@juicetime.com.sa
   const [formfields, setFormfields] = useState({
-    email: 'dammamroad@juicetime.com.sa',
+    email: 'dammamrd@juicetime.com.sa',
     password: '1',
   });
 
