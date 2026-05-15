@@ -54,7 +54,6 @@ export const EmployeeListDataAction = token => {
           }
         }
 
-        console.log(JSON.stringify(list), 'listlist');
         insertEmployeeList(list);
         await dispatch(GetAllEmployeeFromLocalDB());
       } else {

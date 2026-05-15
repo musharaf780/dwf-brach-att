@@ -579,7 +579,6 @@ const DashboardPortrait = props => {
                     return (
                       <EmployeeTile
                         onItemClick={async () => {
-
                           const modelPath =
                             '../../Assets/mobilefacenet.tflite';
                           const model = await loadTensorflowModel(modelPath);
