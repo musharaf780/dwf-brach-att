@@ -55,17 +55,47 @@ const SplashScreen = props => {
       .catch(error => console.log('error', error));
   };
 
+
+  const DeactivateAllDevices = async () => {
+    myHeaders.append('Content-Type', 'application/json');
+    myHeaders.append(
+      'Authorization',
+      `Bearer ${loginSuccess?.access_token}`,
+    );
+
+    var raw = JSON.stringify({
+      device_os: PlatformName,
+      device_id: token,
+      app_version: VersionName,
+    });
+
+    var requestOptions = {
+      method: 'PUT',
+      headers: myHeaders,
+      body: raw,
+      redirect: 'follow',
+    };
+
+    fetch(
+      `${ApiConstants.BaseUrl}/firebase/user/${loginSuccess?.user_id}/deactivate_wf_extra_devices?db=${ApiConstants.DatabaseName}`,
+      requestOptions,
+    )
+      .then(response => response.json())
+      .then(result => {
+        console.log(JSON.stringify(result), "DeactivateAllDevices");
+      })
+      .catch(error => console.log('error', error));
+  };
+
   useEffect(() => {
     RegisterDevice()
   }, [])
-
-  // /firebase/user/<int:user_id>/add_wf_device
 
   return isTablet ? (
     <DashboardLandcape
       onPendingPress={() => props.navigation.navigate('PendingShift')}
       logoutPress={() => {
-        dispatch(AuthAction.UserLogoutAction());
+        dispatch(AuthAction.UserLogoutAction(loginSuccess?.user_id, loginSuccess?.access_token));
         props.navigation.replace('LoginScreen');
       }}
       onNavigate={() => {
@@ -76,7 +106,7 @@ const SplashScreen = props => {
     <DashboardPortrait
       onPendingPress={() => props.navigation.navigate('PendingShift')}
       logoutPress={() => {
-        dispatch(AuthAction.UserLogoutAction());
+        dispatch(AuthAction.UserLogoutAction(loginSuccess?.user_id, loginSuccess?.access_token));
         props.navigation.replace('LoginScreen');
       }}
       onNavigate={() => {

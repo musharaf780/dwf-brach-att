@@ -21,14 +21,14 @@ import messaging from '@react-native-firebase/messaging';
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import { Alert, Platform } from 'react-native';
 
+// Store created outside component so it is never recreated on re-render
+const rootReducer = combineReducers({
+  auth: AuthReducer,
+  employee: EmployeeDataReducer,
+});
+const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
+
 const App = () => {
-  const rootReducer = combineReducers({
-    auth: AuthReducer,
-    employee: EmployeeDataReducer,
-  });
-
-  const store = createStore(rootReducer, applyMiddleware(ReduxThunk));
-
   useEffect(() => {
     const init = async () => {
       const isTablet = await DeviceInfo.isTablet();
@@ -42,42 +42,6 @@ const App = () => {
     };
     init();
   }, []);
-
-
-  const notificationListeners = () => {
-    messaging().onMessage(async remoteMessage => {
-      console.log('Foreground notification:', remoteMessage);
-      if (Platform.OS === 'android') {
-        await notifee.displayNotification({
-          title: remoteMessage.notification?.title || 'Notification',
-          body: remoteMessage.notification?.body || '',
-          android: {
-            channelId: 'default',
-            importance: AndroidImportance.HIGH,
-            smallIcon: 'ic_notification',
-          },
-        });
-      } else {
-        Alert.alert(
-          remoteMessage.notification?.title || 'Notification',
-          remoteMessage.notification?.body || '',
-        );
-      }
-    });
-
-    messaging().onNotificationOpenedApp(remoteMessage => {
-      console.log('Background notification opened:', remoteMessage);
-    });
-
-    messaging()
-      .getInitialNotification()
-      .then(remoteMessage => {
-        if (remoteMessage) {
-          console.log('Quit state notification:', remoteMessage);
-        }
-      });
-  };
-
 
   const getFCMToken = async () => {
     try {
@@ -97,7 +61,44 @@ const App = () => {
       });
     }
     getFCMToken();
-    notificationListeners();
+
+    // Subscribe and keep unsubscribe functions for cleanup
+    const unsubscribeOnMessage = messaging().onMessage(async remoteMessage => {
+      console.log('Foreground notification:', remoteMessage);
+      if (Platform.OS === 'android') {
+        await notifee.displayNotification({
+          title: remoteMessage.notification?.title || 'Notification',
+          body: remoteMessage.notification?.body || '',
+          android: {
+            channelId: 'default',
+            importance: AndroidImportance.HIGH,
+            smallIcon: 'ic_notification',
+          },
+        });
+      } else {
+        Alert.alert(
+          remoteMessage.notification?.title || 'Notification',
+          remoteMessage.notification?.body || '',
+        );
+      }
+    });
+
+    const unsubscribeOnNotificationOpened = messaging().onNotificationOpenedApp(remoteMessage => {
+      console.log('Background notification opened:', remoteMessage);
+    });
+
+    messaging()
+      .getInitialNotification()
+      .then(remoteMessage => {
+        if (remoteMessage) {
+          console.log('Quit state notification:', remoteMessage);
+        }
+      });
+
+    return () => {
+      unsubscribeOnMessage();
+      unsubscribeOnNotificationOpened();
+    };
   }, []);
 
 

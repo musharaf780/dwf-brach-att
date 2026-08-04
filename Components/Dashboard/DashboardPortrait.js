@@ -431,7 +431,7 @@ const DashboardPortrait = props => {
   );
 
 
-  console.log(JSON.stringify(employeeList), "employeeList")
+
 
   return (
     <SafeAreaView style={styles.safeArea}>

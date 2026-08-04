@@ -25,12 +25,35 @@ export const UserAuthDataToReduxAction = data => {
   };
 };
 
-export const UserLogoutAction = () => {
+
+const LogoutDevice = async (userId, token) => {
+  console.log(`${token}`, "token")
+  const response = await fetch(
+    `${ApiConstants.BaseUrl}/firebase/user/${userId}/logout_wf_device`,
+    {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    },
+  );
+
+  if (!response.ok) {
+    throw new Error(`LogoutDevice failed: ${response.status}`);
+  }
+
+  return await response.json();
+};
+
+export const UserLogoutAction = (userId, token) => {
   return async dispatch => {
     try {
       dispatch({ type: UserLoginActionConst.USER_LOGOUT });
+      await LogoutDevice(userId, token)
       await clearAuthData();
-      console.log('User logged out successfully');
+
+
     } catch (error) {
       console.log('Logout error:', error.message);
     }
@@ -51,16 +74,12 @@ export const UserLoginAction = info => {
     };
 
     fetch(
-      `${ApiConstants.BaseUrl}/authentication/oauth2/token?client_id=${
-        ApiConstants.Client_id
-      }&client_secret=${ApiConstants.Client_secret}&${
-        Type === 'user'
-          ? `username=${info.email?.trim()}`
-          : `iqama_no=${info.email}`
-      }&password=${
-        info.password
-      }&password_type=request-body&grant_type=password&login_type=${
-        Type === 'user' ? 'user' : 'iqama'
+      `${ApiConstants.BaseUrl}/authentication/oauth2/token?client_id=${ApiConstants.Client_id
+      }&client_secret=${ApiConstants.Client_secret}&${Type === 'user'
+        ? `username=${info.email?.trim()}`
+        : `iqama_no=${info.email}`
+      }&password=${info.password
+      }&password_type=request-body&grant_type=password&login_type=${Type === 'user' ? 'user' : 'iqama'
       }&db=${ApiConstants.DatabaseName}`,
 
       requestOptions,
