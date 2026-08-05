@@ -9,7 +9,7 @@ import { ThemeColors } from '../Constants/Color';
 import Heading from './Heading';
 import Paragraph from './Paragraph';
 
-const EmployeeTile = ({ items, onItemClick }) => {
+const EmployeeTile = ({ items, onItemClick, allowAtt }) => {
   return (
     <View style={styles.container}>
       <View style={styles.iconContainer}>
@@ -34,33 +34,35 @@ const EmployeeTile = ({ items, onItemClick }) => {
 
       <View style={styles.detailsContainer}>
         <Heading style={styles.name} title={items?.name} />
+        {
+          allowAtt && <TouchableOpacity
+            onPress={() => onItemClick(items?.image)}
+            activeOpacity={0.8}
+            style={[
+              styles.button,
+              {
+                backgroundColor: items.checkIn
+                  ? ThemeColors.danger
+                  : ThemeColors.success,
+              },
+            ]}
+          >
+            <View style={styles.buttonIcon}>
+              <IoIcon
+                size={hp('2%')}
+                color={ThemeColors.white}
+                name="calendar-clear-outline"
+              />
+            </View>
+            <View style={styles.buttonLabel}>
+              <Paragraph
+                style={styles.buttonText}
+                text={items.checkIn ? 'Check Out' : 'Check In'}
+              />
+            </View>
+          </TouchableOpacity>
+        }
 
-        <TouchableOpacity
-          onPress={() => onItemClick(items?.image)}
-          activeOpacity={0.8}
-          style={[
-            styles.button,
-            {
-              backgroundColor: items.checkIn
-                ? ThemeColors.danger
-                : ThemeColors.success,
-            },
-          ]}
-        >
-          <View style={styles.buttonIcon}>
-            <IoIcon
-              size={hp('2%')}
-              color={ThemeColors.white}
-              name="calendar-clear-outline"
-            />
-          </View>
-          <View style={styles.buttonLabel}>
-            <Paragraph
-              style={styles.buttonText}
-              text={items.checkIn ? 'Check Out' : 'Check In'}
-            />
-          </View>
-        </TouchableOpacity>
       </View>
     </View>
   );

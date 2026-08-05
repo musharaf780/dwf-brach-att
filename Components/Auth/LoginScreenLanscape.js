@@ -26,7 +26,7 @@ const LoginScreenLandscape = props => {
   const { loader, loginSuccess, loginFail } = useSelector(state => state.auth);
   const [secure, setSecure] = useState(false);
   const dispatch = useDispatch();
-  const [formfields, setFormfields] = useState({
+ const [formfields, setFormfields] = useState({
     email: '',
     password: '',
   });

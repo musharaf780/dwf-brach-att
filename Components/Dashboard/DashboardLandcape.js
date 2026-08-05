@@ -290,11 +290,10 @@ const DashboardLandcape = props => {
           .split(' ')
           .map(part => part.split(/[-:]/));
 
-        const ModifiedUniqueString = `${dateParts[0]}${dateParts[1]}${
-          dateParts[2]
-        }${timeParts[0]}${timeParts[1]}${timeParts[2]}${formatMs(
-          currentDate.getMilliseconds(),
-        )}${padZeros(employee.id)}${employee?.checkIn ? 2 : 1}`;
+        const ModifiedUniqueString = `${dateParts[0]}${dateParts[1]}${dateParts[2]
+          }${timeParts[0]}${timeParts[1]}${timeParts[2]}${formatMs(
+            currentDate.getMilliseconds(),
+          )}${padZeros(employee.id)}${employee?.checkIn ? 2 : 1}`;
 
         const data = {
           api_call_for: employee.checkIn ? 'checkout' : 'checkin',
@@ -439,6 +438,89 @@ const DashboardLandcape = props => {
       };
     }, []),
   );
+
+
+  const [allowAtt, setAllowAtt] = useState(false)
+
+  async function GetTakeBranchAttendance() {
+    if (!loginSuccess?.user_id || !loginSuccess?.access_token) {
+      console.error('GetTakeBranchAttendance: Missing user session, skipping call');
+      setAllowAtt(false);
+      return false;
+    }
+
+    try {
+      const isOnline = await checkInternet();
+      if (!isOnline) {
+        ShowToast(
+          'error',
+          'Internet Connection',
+          'Your device has no or weak internet connection',
+        );
+        return allowAtt;
+      }
+
+      const response = await fetch(
+        `${ApiConstants.BaseUrl}/user/${loginSuccess.user_id}/workforce_meta_info`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${loginSuccess.access_token}`,
+          },
+        },
+      );
+
+      if (!response) {
+        throw new Error('No response received from server');
+      }
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response?.status}`);
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Invalid JSON in workforce meta info response');
+      }
+
+      if (!data || typeof data !== 'object') {
+        throw new Error('Empty or malformed workforce meta info response');
+      }
+
+      if (!data.data || typeof data.data !== 'object') {
+        throw new Error('workforce meta info response missing "data" object');
+      }
+
+      const takeBranchAttendance = data?.data?.take_branch_attendance;
+      console.log(takeBranchAttendance, "takeBranchAttendance")
+
+      if (typeof takeBranchAttendance !== 'boolean') {
+
+        setAllowAtt(false);
+        return false;
+      }
+
+      setAllowAtt(takeBranchAttendance);
+      return takeBranchAttendance;
+    } catch (error) {
+      console.error('Failed to fetch workforce meta info:', error);
+      setAllowAtt(false);
+      return false;
+    }
+  }
+
+
+
+
+  useFocusEffect(
+    useCallback(() => {
+      GetTakeBranchAttendance();
+    }, [loginSuccess?.user_id, loginSuccess?.access_token]),
+  );
+
 
   return (
     <View style={styles.mainContainer}>
@@ -595,6 +677,7 @@ const DashboardLandcape = props => {
                     return (
                       <View key={index.toString()} style={styles.employeeTile}>
                         <EmployyeTileLandscape
+                          allowAtt={allowAtt}
                           onItemClick={() => {
                             selectedEmployeeRef.current = item;
                             handleItemClick(item);

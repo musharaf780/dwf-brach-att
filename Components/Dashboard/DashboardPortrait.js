@@ -67,6 +67,7 @@ const DashboardPortrait = props => {
   const [pendingCount, setPendingCounts] = useState(0);
   const [pushedCount, setPushedCounts] = useState(0);
   const isProcessingRef = useRef(false);
+  const [allowAtt, setAllowAtt] = useState(false)
 
   const [imageString, setImageString] = useState(null);
   const appState = React.useRef(AppState.currentState);
@@ -432,6 +433,84 @@ const DashboardPortrait = props => {
 
 
 
+  async function GetTakeBranchAttendance() {
+    if (!loginSuccess?.user_id || !loginSuccess?.access_token) {
+      console.error('GetTakeBranchAttendance: Missing user session, skipping call');
+      setAllowAtt(false);
+      return false;
+    }
+
+    try {
+      const isOnline = await checkInternet();
+      if (!isOnline) {
+        ShowToast(
+          'error',
+          'Internet Connection',
+          'Your device has no or weak internet connection',
+        );
+        return allowAtt;
+      }
+
+      const response = await fetch(
+        `${ApiConstants.BaseUrl}/user/${loginSuccess.user_id}/workforce_meta_info`,
+        {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${loginSuccess.access_token}`,
+          },
+        },
+      );
+
+      if (!response) {
+        throw new Error('No response received from server');
+      }
+
+      if (!response.ok) {
+        throw new Error(`API Error: ${response.status}`);
+      }
+
+      let data;
+      try {
+        data = await response.json();
+      } catch (parseError) {
+        throw new Error('Invalid JSON in workforce meta info response');
+      }
+
+      if (!data || typeof data !== 'object') {
+        throw new Error('Empty or malformed workforce meta info response');
+      }
+
+      if (!data.data || typeof data.data !== 'object') {
+        throw new Error('workforce meta info response missing "data" object');
+      }
+
+      const takeBranchAttendance = data.data.take_branch_attendance;
+
+      if (typeof takeBranchAttendance !== 'boolean') {
+
+        setAllowAtt(false);
+        return false;
+      }
+
+      setAllowAtt(takeBranchAttendance);
+      return takeBranchAttendance;
+    } catch (error) {
+      console.error('Failed to fetch workforce meta info:', error);
+      setAllowAtt(false);
+      return false;
+    }
+  }
+
+
+
+
+  useFocusEffect(
+    useCallback(() => {
+      GetTakeBranchAttendance();
+    }, [loginSuccess?.user_id, loginSuccess?.access_token]),
+  );
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -513,6 +592,11 @@ const DashboardPortrait = props => {
             </View>
           </View>
 
+          {/* <Button
+            title='CLICK'
+            onPress={GetTakeBranchAttendance}
+          /> */}
+
           <View style={styles.statsRow}>
             <TouchableOpacity
               onPress={props.onPendingPress}
@@ -578,6 +662,7 @@ const DashboardPortrait = props => {
                   ) {
                     return (
                       <EmployeeTile
+                        allowAtt={allowAtt}
                         onItemClick={async () => {
                           const modelPath =
                             '../../Assets/mobilefacenet.tflite';
