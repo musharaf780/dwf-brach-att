@@ -431,7 +431,7 @@ const DashboardPortrait = props => {
   );
 
 
-  console.log(JSON.stringify(employeeList), "employeeList")
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -579,19 +579,29 @@ const DashboardPortrait = props => {
                     return (
                       <EmployeeTile
                         onItemClick={async () => {
+                          // try {
+                          //   const modelPath =
+                          //     '../../Assets/mobilefacenet.tflite';
+                          //   const model = await loadTensorflowModel(
+                          //     modelPath,
+                          //   );
+                          //   const cleanBase64 = item.image.replace(
+                          //     /^data:image\/\w+;base64,/,
+                          //     '',
+                          //   );
+                          //   const imageBytes = base64ToUint8Array(
+                          //     cleanBase64,
+                          //   );
+                          //   await model.run(imageBytes);
+                          // } catch (error) {
+                          //   console.log(
+                          //     'Error generating face embeddings:',
+                          //     error,
+                          //   );
+                          // }
 
-                          const modelPath =
-                            '../../Assets/mobilefacenet.tflite';
-                          const model = await loadTensorflowModel(modelPath);
-                          const cleanBase64 = item.image.replace(
-                            /^data:image\/\w+;base64,/,
-                            '',
-                          );
-                          const imageBytes = base64ToUint8Array(cleanBase64);
-                          const embeddings = await model.run(imageBytes);
-                          console.log(embeddings, 'embeddings');
-                          // selectedEmployeeRef.current = item;
-                          // handleItemClick(item);
+                          selectedEmployeeRef.current = item;
+                          handleItemClick(item);
                         }}
                         key={index.toString()}
                         items={item}
