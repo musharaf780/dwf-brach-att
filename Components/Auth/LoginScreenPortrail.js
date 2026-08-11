@@ -31,10 +31,17 @@ const LoginScreenPortrail = props => {
 
   // dammamroad@juicetime.com.sa
   const [formfields, setFormfields] = useState({
-    email: 'ikram@dwf.com.sa',
-    password: '1',
+    email: '',
+    password: '',
+    //     email: '2603684479',
+    // password: 'R@79ainG',
+    // email: 'ikram@dwf.com.sa',
+    // password: '1',
   });
 
+
+  //   email: '2603684479',
+  // password: 'R@79ainG',
   const LoginHandler = () => {
     if (formfields.email === '') {
       ShowToast('error', 'Email Validation', 'Email Address is required');

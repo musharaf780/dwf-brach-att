@@ -1,6 +1,8 @@
+import { UserLoginActionConst } from '../Constants/AuthConstant';
 import {
   EmployeeListDataActionConst,
   PendingShiftPostToServerActionConst,
+
 } from '../Constants/EmployeeDataConst';
 
 const initialState = {
@@ -35,6 +37,20 @@ export default (state = initialState, action) => {
         loading: false,
         employeeListError: action.message,
       };
+    case EmployeeListDataActionConst.EMPLOYE_LIST_CLEAN:
+      return {
+        ...state,
+        loading: false,
+        employeeList: [],
+        employeeListError: null,
+      };
+
+    // case UserLoginActionConst.USER_LOGOUT:
+    //   return {
+    //     loading: false,
+    //     employeeList: [],
+    //     employeeListError: null,
+    //   };
 
     case PendingShiftPostToServerActionConst.PENDING_SHIFT_POST_REQ:
       return {

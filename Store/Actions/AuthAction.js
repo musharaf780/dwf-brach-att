@@ -7,6 +7,8 @@ import {
 import ApiConstants from '../../Constants/ApiConstants';
 import { saveAuthData, clearAuthData } from '../../DB/AuthDatabse';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { clearEmployees } from '../../DB/EmployeeList';
+import { EmployeeListDataActionConst } from '../Constants/EmployeeDataConst';
 export const SetIsTabletLanscape = bool => {
   return async dispatch => {
     dispatch({
@@ -27,7 +29,7 @@ export const UserAuthDataToReduxAction = data => {
 
 
 const LogoutDevice = async (userId, token) => {
-  console.log(`${token}`, "token")
+
   const response = await fetch(
     `${ApiConstants.BaseUrl}/firebase/user/${userId}/logout_wf_device`,
     {
@@ -50,15 +52,19 @@ export const UserLogoutAction = (userId, token) => {
   return async dispatch => {
     try {
       dispatch({ type: UserLoginActionConst.USER_LOGOUT });
+      dispatch({ type: EmployeeListDataActionConst.EMPLOYE_LIST_CLEAN });
+      await clearEmployees()
+      dispatch({ type: EmployeeListDataActionConst.EMPLOYE_LIST_CLEAN });
       await LogoutDevice(userId, token)
       await clearAuthData();
-
 
     } catch (error) {
       console.log('Logout error:', error.message);
     }
   };
 };
+
+
 
 export const UserLoginAction = info => {
   let emailValidate = new RegExp('[a-z0-9]+@[a-z]+.[a-z]{2,3}');

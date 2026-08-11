@@ -28,7 +28,7 @@ import EmployeeTile from '../EmployeeTile';
 import Paragraph from '../Paragraph';
 import * as EmployeeDataAction from '../../Store/Actions/EmployeeDataAction';
 import { useDispatch, useSelector } from 'react-redux';
-import { toggleEmployeeCheckIn } from '../../DB/EmployeeList';
+import { clearEmployees, getAllEmployees, toggleEmployeeCheckIn } from '../../DB/EmployeeList';
 import CameraPopupPortrail from './CameraPopup/CameraPopupPortrail';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import ImageResizer from 'react-native-image-resizer';
@@ -519,6 +519,35 @@ const DashboardPortrait = props => {
         backgroundColor="transparent"
         barStyle={Platform.OS === 'ios' ? 'light-content' : 'light-content'}
       />
+
+      {/* <Button
+        title='CLEAN'
+        onPress={async () => {
+
+          await clearEmployees();
+
+        }}
+      />
+
+      <Button
+        title='EMP LIST'
+        onPress={async () => {
+          console.log("CLICK")
+          const employees = await getAllEmployees();
+          console.log(JSON.stringify(employees))
+        }}
+      />
+
+
+      <Button
+        title='REDUX'
+        onPress={async () => {
+          console.log("CLICK")
+
+          console.log(JSON.stringify(employeeList))
+        }}
+      /> */}
+
 
       <View style={styles.container}>
         <View style={styles.headerContainer}>

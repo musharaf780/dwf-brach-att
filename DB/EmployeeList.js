@@ -147,6 +147,26 @@ export const getAllEmployees = () => {
   });
 };
 
+
+export const clearEmployees = () => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        'DELETE FROM employees',
+        [],
+        (_, result) => {
+          console.log('✅ Employees table cleared');
+          resolve(result);
+        },
+        (_, error) => {
+          console.log('❌ Clear error:', error.message);
+          reject(error);
+        },
+      );
+    });
+  });
+};
+
 export const toggleEmployeeCheckIn = (id, bool) => {
   return new Promise((resolve, reject) => {
     if (!id) {

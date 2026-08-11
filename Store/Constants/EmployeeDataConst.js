@@ -2,6 +2,7 @@ export const EmployeeListDataActionConst = {
   GET_EMPLOYEE_LIST_RED: 'GET_EMPLOYEE_LIST',
   GET_EMPLOYEE_LIST_SUCC: 'GET_EMPLOYEE_LIST_SUCC',
   GET_EMPLOYEE_LIST_FAIL: 'GET_EMPLOYEE_LIST_FAIL',
+  EMPLOYE_LIST_CLEAN: 'EMPLOYE_LIST_CLEAN',
 };
 
 export const PendingShiftPostToServerActionConst = {
