@@ -7,9 +7,34 @@ def node_require(script)
     )", __dir__]).strip
 end
 
+def resolve_node_module(script)
+  Pod::Executable.execute_command('node', ['-p',
+    "require.resolve(
+      '#{script}',
+      {paths: [process.argv[1]]},
+    )", __dir__]).strip
+end
+
 # Require necessary scripts
 node_require('react-native/scripts/react_native_pods.rb')
 node_require('react-native-permissions/scripts/setup.rb')  # <- this is required for setup_permissions
+
+# React Native 0.80.2 vendors fmt 11.0.2, which fails to compile on newer
+# Apple Clang (Xcode 16.3+, including Xcode 26) with:
+#   "Call to consteval function ... is not a constant expression"
+# This is a known fmt bug fixed upstream in fmt 11.1.0+. Bump the vendored
+# fmt.podspec (and RCT-Folly's pinned dependency on it) to a fixed release
+# before CocoaPods resolves them.
+react_native_podspecs_dir = File.join(File.dirname(resolve_node_module('react-native/package.json')), 'third-party-podspecs')
+['fmt.podspec', 'RCT-Folly.podspec'].each do |podspec_name|
+  podspec_path = File.join(react_native_podspecs_dir, podspec_name)
+  podspec_content = File.read(podspec_path)
+  patched_content = podspec_content.gsub('11.0.2', '11.2.0')
+  if patched_content != podspec_content
+    File.write(podspec_path, patched_content)
+    Pod::UI.puts "Patched #{podspec_name} to use fmt 11.2.0 (fixes Xcode 16.3+/26 consteval build error)".green
+  end
+end
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!

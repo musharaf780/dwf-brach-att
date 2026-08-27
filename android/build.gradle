@@ -12,7 +12,6 @@ buildscript {
         mavenCentral()
     }
     dependencies {
-            classpath 'com.google.gms:google-services:4.4.4'
         classpath("com.android.tools.build:gradle")
         classpath("com.facebook.react:react-native-gradle-plugin")
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
@@ -20,3 +19,13 @@ buildscript {
 }
 
 apply plugin: "com.facebook.react.rootproject"
+
+// react-native-vision-camera's native library (libVisionCamera.so) is built
+// via its own CMakeLists.txt, which doesn't request 16 KB ELF page alignment
+// the way React Native's own native builds do. Google Play rejects uploads
+// containing any 4 KB-aligned .so on API 35+, so force the linker flag here.
+project(':react-native-vision-camera') {
+    afterEvaluate {
+        android.defaultConfig.externalNativeBuild.cmake.arguments "-DCMAKE_SHARED_LINKER_FLAGS=-Wl,-z,max-page-size=16384"
+    }
+}
