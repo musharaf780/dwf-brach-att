@@ -1,0 +1,228 @@
+================================================================================
+IMPLEMENTATION INSTRUCTION - REFRESH TOKEN ON SPLASH
+================================================================================
+
+GOAL
+----
+On app launch, if a local session exists, silently exchange the stored
+refresh_token for a fresh access_token + refresh_token, persist them to the
+local SQLite "auth" row, and push the updated record into Redux.
+
+All of this lives ONLY in Screens/Auth/SplashScreen.js - the PortraitLayout /
+LandscapeLayout components stay purely presentational (no redux, no fetch, no
+DB access).
+
+
+--------------------------------------------------------------------------------
+1. API CONTRACT
+--------------------------------------------------------------------------------
+
+Endpoint (Odoo OAuth2):
+
+  GET {BaseUrl}/authentication/oauth2/token
+      ?client_id={Client_id}
+      &client_secret={Client_secret}
+      &refresh_token={refresh_token}
+      &grant_type=refresh_token
+      &db={DatabaseName}
+
+All four config values come from Constants/ApiConstants.js:
+  BaseUrl, Client_id, Client_secret, DatabaseName
+
+Headers:
+  Authorization: Bearer {current access_token}
+  Content-Type:  application/json
+
+Success response shape:
+  { "success": true, "access_token": "...", "refresh_token": "...", ... }
+
+Treat the response as valid ONLY when all of these are truthy:
+  result.success && result.access_token && result.refresh_token
+
+Anything else = no-op. Do NOT clear the session, do NOT navigate, do NOT set
+loginSuccess = null. Just log.
+
+
+--------------------------------------------------------------------------------
+2. PERSISTENCE LAYER - DB/AuthDatabse.js
+--------------------------------------------------------------------------------
+
+Add updateAuthData(). It overwrites ONLY the two token columns and leaves every
+other auth field intact. The auth table is single-row (id = 1), same convention
+as saveAuthData / getAuthData.
+
+  export const updateAuthData = ({ access_token, refresh_token }) => {
+    return new Promise((resolve, reject) => {
+      db.transaction(tx => {
+        tx.executeSql(
+          `UPDATE auth SET access_token = ?, refresh_token = ? WHERE id = 1`,
+          [access_token, refresh_token],
+          (_, results) => resolve(results),
+          (_, error) => reject(error),
+        );
+      });
+    });
+  };
+
+
+--------------------------------------------------------------------------------
+3. REDUX WIRING
+--------------------------------------------------------------------------------
+
+Store/Constants/AuthConstant.js
+
+  export const UpdateAuthDataActionConst = {
+    UPDATE_AUTH_TOKENS: 'UPDATE_AUTH_TOKENS',
+  };
+
+
+Store/Actions/AuthAction.js
+  - Import updateAuthData and getAuthData alongside the existing
+    saveAuthData / clearAuthData imports.
+  - Add the thunk below. It persists, re-reads the FULL row, then dispatches it.
+
+  export const UpdateAuthDataAction = ({ access_token, refresh_token }) => {
+    return async dispatch => {
+      try {
+        await updateAuthData({ access_token, refresh_token });
+        const data = await getAuthData();            // full row, not just tokens
+        dispatch({
+          type: UpdateAuthDataActionConst.UPDATE_AUTH_TOKENS,
+          data,
+        });
+        return data;
+      } catch (error) {
+        console.log('UpdateAuthData error:', error.message);
+      }
+    };
+  };
+
+
+Store/Reducers/AuthReducer.js
+  - Import UpdateAuthDataActionConst.
+  - Mirror the existing SAVE_USERDATA_TO_REDUX case so loginSuccess keeps the
+    same shape everywhere (the whole auth row, or null).
+
+  case UpdateAuthDataActionConst.UPDATE_AUTH_TOKENS:
+    state = { ...state, loginSuccess: action.data };
+    break;
+
+
+--------------------------------------------------------------------------------
+4. Screens/Auth/SplashScreen.js
+--------------------------------------------------------------------------------
+
+New imports:
+  import ApiConstants from '../../Constants/ApiConstants';
+  import { ShowToast } from '../../Components/ShowToast';
+
+RefreshToken function (component scope, uses dispatch from useDispatch()):
+
+  const RefreshToken = async (access_token, refresh_token) => {
+    var myHeaders = new Headers();
+    myHeaders.append('Authorization', `Bearer ${access_token}`);
+    myHeaders.append('Content-Type', 'application/json');
+
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+    };
+
+    fetch(
+      `${ApiConstants.BaseUrl}/authentication/oauth2/token?client_id=${ApiConstants.Client_id}&client_secret=${ApiConstants.Client_secret}&refresh_token=${refresh_token}&grant_type=refresh_token&db=${ApiConstants.DatabaseName}`,
+      requestOptions,
+    )
+      .then(response => response.json())
+      .then(result => {
+        if (result.success && result?.access_token && result?.refresh_token) {
+          dispatch(
+            AuthAction.UpdateAuthDataAction({
+              access_token: result.access_token,
+              refresh_token: result.refresh_token,
+            }),
+          );
+          ShowToast(
+            'success',
+            'Session refreshed',
+            'Your previous session has refreshed successfully.',
+          );
+        }
+      })
+      .catch(error => {
+        console.log('error', error);
+      });
+  };
+
+Trigger - fold it into the existing GetUserData, which already does the single
+getAuthData() read on mount (no extra DB hit):
+
+  const GetUserData = async () => {
+    const data = await getAuthData();
+    dispatch(AuthAction.UserAuthDataToReduxAction(data));
+
+    if (data) {
+      RefreshToken(data.access_token, data.refresh_token);
+    } else {
+      console.log('[SplashScreen] no auth data found');
+      ShowToast('error', 'No active session', "You don't have any active session.");
+    }
+  };
+
+GetUserData() is already called in the mount effect:
+  useEffect(() => {
+    GetUserData();
+    CheckVersion();
+    requestNotificationPermission();
+  }, []);
+
+
+--------------------------------------------------------------------------------
+5. DESIGN RULES / CONSTRAINTS
+--------------------------------------------------------------------------------
+
+- Fire-and-forget. RefreshToken is NOT awaited. The splash never blocks on it
+  and never gates navigation on it. The "Continue" button reads loginSuccess,
+  which is set by UserAuthDataToReduxAction before the refresh completes.
+
+- Never downgrade session state on failure. A failed / invalid refresh only
+  logs. It must not call clearAuthData, must not set loginSuccess = null, must
+  not redirect to Login. The old access_token stays usable until it actually
+  401s elsewhere.
+
+- Single source of truth for token exchange: SplashScreen.js only. Do not
+  reintroduce this into layout components.
+
+- loginSuccess shape is invariant: always the full "auth" row object or null.
+  Every reducer case that writes it (SAVE_USERDATA_TO_REDUX, UPDATE_AUTH_TOKENS,
+  USER_LOGOUT) must keep that shape.
+
+- Toast host is mounted once at app root (App.js), so ShowToast is safe to call
+  from here.
+
+
+--------------------------------------------------------------------------------
+6. OUT OF SCOPE (DO NOT TOUCH)
+--------------------------------------------------------------------------------
+
+Attendance / ATT logic, CheckVersion, notification permission flow, and the
+login (UserLoginAction) path - all stable.
+
+Unrelated logout-side change already in place: clearAuthData() was moved into a
+finally block in UserLogoutAction so local tokens are always cleared even if the
+logout API call throws.
+
+
+--------------------------------------------------------------------------------
+7. FILES TOUCHED
+--------------------------------------------------------------------------------
+
+  DB/AuthDatabse.js            + updateAuthData()
+  Store/Constants/AuthConstant.js  + UpdateAuthDataActionConst
+  Store/Actions/AuthAction.js       + UpdateAuthDataAction() thunk
+  Store/Reducers/AuthReducer.js     + UPDATE_AUTH_TOKENS case
+  Screens/Auth/SplashScreen.js      + RefreshToken() + call in GetUserData()
+  Components/Splash/PortraitLayout.js   reverted to presentational-only
+  Components/Splash/LandscapeLayout.js  reverted to presentational-only
+
+================================================================================

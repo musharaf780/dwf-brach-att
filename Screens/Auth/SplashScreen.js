@@ -8,6 +8,8 @@ import checkVersion from 'react-native-store-version';
 import DeviceInfo from 'react-native-device-info';
 import UpdateAppMopup from '../../Components/UpdateAppMopup';
 import UpdateAppPopUpLand from '../../Components/UpdateAppPopUpLand';
+import ApiConstants from '../../Constants/ApiConstants';
+import { ShowToast } from '../../Components/ShowToast';
 import { Alert, Linking, PermissionsAndroid, Platform } from 'react-native';
 const SplashScreen = props => {
   const { isTablet, loginSuccess } = useSelector(state => state.auth);
@@ -15,9 +17,56 @@ const SplashScreen = props => {
   const [updateModal, setUpdateModal] = useState(false);
   const dispatch = useDispatch();
 
+  const RefreshToken = async (access_token, refresh_token) => {
+    var myHeaders = new Headers();
+    myHeaders.append('Authorization', `Bearer ${access_token}`);
+    myHeaders.append('Content-Type', 'application/json');
+
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow',
+    };
+
+    fetch(
+      `${ApiConstants.BaseUrl}/authentication/oauth2/token?client_id=${ApiConstants.Client_id}&client_secret=${ApiConstants.Client_secret}&refresh_token=${refresh_token}&grant_type=refresh_token&db=${ApiConstants.DatabaseName}`,
+      requestOptions,
+    )
+      .then(response => response.json())
+      .then(result => {
+        if (result.success && result?.access_token && result?.refresh_token) {
+          dispatch(
+            AuthAction.UpdateAuthDataAction({
+              access_token: result.access_token,
+              refresh_token: result.refresh_token,
+            }),
+          );
+          ShowToast(
+            'success',
+            'Session refreshed',
+            'Your previous session has refreshed successfully.',
+          );
+        }
+      })
+      .catch(error => {
+        console.log('error', error);
+      });
+  };
+
   const GetUserData = async () => {
     const data = await getAuthData();
     dispatch(AuthAction.UserAuthDataToReduxAction(data));
+
+    if (data) {
+      RefreshToken(data.access_token, data.refresh_token);
+    } else {
+      console.log('[SplashScreen] no auth data found');
+      ShowToast(
+        'error',
+        'No active session',
+        "You don't have any active session.",
+      );
+    }
   };
 
   const CheckVersion = async () => {

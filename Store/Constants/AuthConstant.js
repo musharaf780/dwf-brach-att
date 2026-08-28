@@ -13,6 +13,10 @@ export const UserAuthDataToReduxActionConst = {
   SAVE_USERDATA_TO_REDUX: 'SAVE_USERDATA_TO_REDUX',
 };
 
+export const UpdateAuthDataActionConst = {
+  UPDATE_AUTH_TOKENS: 'UPDATE_AUTH_TOKENS',
+};
+
 export const GetEmployeeInformationActionConst = {
   USER_PROFILE_INFORMATION: 'USER_PROFILE_INFORMATION',
 };

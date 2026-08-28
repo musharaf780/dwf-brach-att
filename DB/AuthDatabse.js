@@ -92,6 +92,25 @@ export const getAuthData = () => {
   });
 };
 
+export const updateAuthData = ({ access_token, refresh_token }) => {
+  return new Promise((resolve, reject) => {
+    db.transaction(tx => {
+      tx.executeSql(
+        `UPDATE auth SET access_token = ?, refresh_token = ? WHERE id = 1`,
+        [access_token, refresh_token],
+        (_, results) => {
+          console.log('Auth tokens updated');
+          resolve(results);
+        },
+        (_, error) => {
+          console.log('Error updating auth data:', error.message);
+          reject(error);
+        },
+      );
+    });
+  });
+};
+
 export const clearAuthData = () => {
   return new Promise((resolve, reject) => {
     db.transaction(tx => {

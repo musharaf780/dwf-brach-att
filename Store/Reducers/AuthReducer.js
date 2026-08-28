@@ -2,6 +2,7 @@ import {
   IsTabletActionConst,
   UserLoginActionConst,
   UserAuthDataToReduxActionConst,
+  UpdateAuthDataActionConst,
   GetEmployeeInformationActionConst,
 } from '../Constants/AuthConstant';
 
@@ -51,6 +52,13 @@ export default (state = initialState, action) => {
       state = {
         ...state,
 
+        loginSuccess: action.data,
+      };
+      break;
+
+    case UpdateAuthDataActionConst.UPDATE_AUTH_TOKENS:
+      state = {
+        ...state,
         loginSuccess: action.data,
       };
       break;

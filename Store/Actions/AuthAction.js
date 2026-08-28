@@ -2,10 +2,16 @@ import {
   IsTabletActionConst,
   UserLoginActionConst,
   UserAuthDataToReduxActionConst,
+  UpdateAuthDataActionConst,
   GetEmployeeInformationActionConst,
 } from '../Constants/AuthConstant';
 import ApiConstants from '../../Constants/ApiConstants';
-import { saveAuthData, clearAuthData } from '../../DB/AuthDatabse';
+import {
+  saveAuthData,
+  clearAuthData,
+  updateAuthData,
+  getAuthData,
+} from '../../DB/AuthDatabse';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { clearEmployees } from '../../DB/EmployeeList';
 import { EmployeeListDataActionConst } from '../Constants/EmployeeDataConst';
@@ -24,6 +30,24 @@ export const UserAuthDataToReduxAction = data => {
       type: UserAuthDataToReduxActionConst.SAVE_USERDATA_TO_REDUX,
       data: data,
     });
+  };
+};
+
+// Replaces only access_token & refresh_token in the local DB (rest of the
+// auth fields stay the same), then pushes the refreshed record to redux.
+export const UpdateAuthDataAction = ({ access_token, refresh_token }) => {
+  return async dispatch => {
+    try {
+      await updateAuthData({ access_token, refresh_token });
+      const data = await getAuthData();
+      dispatch({
+        type: UpdateAuthDataActionConst.UPDATE_AUTH_TOKENS,
+        data,
+      });
+      return data;
+    } catch (error) {
+      console.log('UpdateAuthData error:', error.message);
+    }
   };
 };
 
@@ -56,10 +80,10 @@ export const UserLogoutAction = (userId, token) => {
       await clearEmployees()
       dispatch({ type: EmployeeListDataActionConst.EMPLOYE_LIST_CLEAN });
       await LogoutDevice(userId, token)
-      await clearAuthData();
-
     } catch (error) {
       console.log('Logout error:', error.message);
+    } finally {
+      await clearAuthData();
     }
   };
 };
