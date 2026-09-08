@@ -19,6 +19,7 @@ const MainNavigator = () => {
   return (
     <NavigationContainer theme={MyTheme}>
       <Stack.Navigator
+        detachInactiveScreens={false}
         screenOptions={{
           headerShown: false,
         }}

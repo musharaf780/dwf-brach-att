@@ -32,6 +32,7 @@ import { check, request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import { useFocusEffect } from '@react-navigation/native';
 import { getPushedRecordsCount } from '../../DB/EmployeePushedShifts';
 import RNFS from 'react-native-fs';
+import * as AuthAction from "../../Store/Actions/AuthAction";
 import {
   insertAttendanceRecord,
   getUnpushedRecordsCount,
@@ -135,6 +136,7 @@ const DashboardLandcape = props => {
   };
 
   const ExecuteSyncRecord = () => {
+
     const myHeaders = new Headers();
     myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
 
@@ -158,9 +160,12 @@ const DashboardLandcape = props => {
             'Execute Sync',
             'All Records not Sync successfully',
           );
+          CheckTokenValidation()
         }
       })
-      .catch(error => console.error(error));
+      .catch(error => {
+        CheckTokenValidation()
+      });
   };
 
   const handleItemClick = async item => {
@@ -383,6 +388,7 @@ const DashboardLandcape = props => {
   };
 
   const CheckPendingValidation = () => {
+
     const myHeaders = new Headers();
     myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
 
@@ -398,7 +404,7 @@ const DashboardLandcape = props => {
     )
       .then(response => response.json())
       .then(result => {
-        console.log(JSON.stringify(result), 'asdfasdf');
+
         if (result.status === 200) {
           const { pending_records } = result;
           if (pending_records.length === 0) {
@@ -412,10 +418,12 @@ const DashboardLandcape = props => {
           }
         } else {
           ShowToast('error', 'Error', 'Oops! Something went wrong.');
+          CheckTokenValidation()
         }
       })
-      .catch(error =>
-        console.error('Error checking pending validation:', error),
+      .catch(error => {
+        CheckTokenValidation()
+      }
       );
   };
   useFocusEffect(
@@ -443,6 +451,7 @@ const DashboardLandcape = props => {
   const [allowAtt, setAllowAtt] = useState(false)
 
   async function GetTakeBranchAttendance() {
+    CheckTokenValidation()
     if (!loginSuccess?.user_id || !loginSuccess?.access_token) {
       console.error('GetTakeBranchAttendance: Missing user session, skipping call');
       setAllowAtt(false);
@@ -521,6 +530,36 @@ const DashboardLandcape = props => {
     }, [loginSuccess?.user_id, loginSuccess?.access_token]),
   );
 
+
+  const CheckTokenValidation = () => {
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
+
+      const requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow',
+      };
+
+      fetch(
+        `${ApiConstants.BaseUrl}/employee/hit_token`,
+        requestOptions,
+      )
+        .then(async response => {
+          const result = await response.json().catch(() => null);
+          if (response.status !== 200) {
+            // dispatch(AuthAction.UserLogoutAction(loginSuccess?.user_id, loginSuccess?.access_token));
+            props.logoutPress()
+            // props.navigation.replace('LoginScreen');
+          }
+          console.log(response.status, JSON.stringify(result), "I AMERE")
+        })
+        .catch(error => console.error(error));
+    } catch (error) {
+      console.log('Logout error:', error.message);
+    }
+  };
 
   return (
     <View style={styles.mainContainer}>

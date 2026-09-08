@@ -301,6 +301,7 @@ const DashboardPortrait = props => {
   };
 
   const CheckPendingValidation = () => {
+
     const myHeaders = new Headers();
     myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
 
@@ -328,11 +329,15 @@ const DashboardPortrait = props => {
             );
           }
         } else {
+          CheckTokenValidation()
           ShowToast('error', 'Error', 'Oops! Something went wrong.');
         }
       })
-      .catch(error =>
-        console.error('Error checking pending validation:', error),
+      .catch(error => {
+        CheckTokenValidation()
+        console.error('Error checking pending validation:', error)
+      }
+
       );
   };
 
@@ -381,6 +386,7 @@ const DashboardPortrait = props => {
   }, [pendingCount]);
 
   const ExecuteSyncRecord = () => {
+
     const myHeaders = new Headers();
     myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
 
@@ -434,6 +440,7 @@ const DashboardPortrait = props => {
 
 
   async function GetTakeBranchAttendance() {
+
     if (!loginSuccess?.user_id || !loginSuccess?.access_token) {
       console.error('GetTakeBranchAttendance: Missing user session, skipping call');
       setAllowAtt(false);
@@ -496,6 +503,7 @@ const DashboardPortrait = props => {
       setAllowAtt(takeBranchAttendance);
       return takeBranchAttendance;
     } catch (error) {
+      CheckTokenValidation()
       console.error('Failed to fetch workforce meta info:', error);
       setAllowAtt(false);
       return false;
@@ -503,6 +511,35 @@ const DashboardPortrait = props => {
   }
 
 
+  const CheckTokenValidation = () => {
+    try {
+      const myHeaders = new Headers();
+      myHeaders.append('Authorization', `Bearer ${loginSuccess.access_token}`);
+
+      const requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow',
+      };
+
+      fetch(
+        `${ApiConstants.BaseUrl}/employee/hit_token`,
+        requestOptions,
+      )
+        .then(async response => {
+          const result = await response.json().catch(() => null);
+          if (response.status !== 200) {
+
+            props.logoutPress()
+
+          }
+          console.log(response.status, JSON.stringify(result), "I AMERE")
+        })
+        .catch(error => console.error(error));
+    } catch (error) {
+      console.log('Logout error:', error.message);
+    }
+  };
 
 
   useFocusEffect(
